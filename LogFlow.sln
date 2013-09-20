@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogFlow", "source\LogFlow\LogFlow.csproj", "{06DA5254-E98F-42D7-8F1E-7DEEF83E99DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogFlow.Specifications", "source\LogFlow.Specifications\LogFlow.Specifications.csproj", "{0942E70B-0545-4515-9031-FE2CFC8E66DF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{06DA5254-E98F-42D7-8F1E-7DEEF83E99DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06DA5254-E98F-42D7-8F1E-7DEEF83E99DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06DA5254-E98F-42D7-8F1E-7DEEF83E99DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06DA5254-E98F-42D7-8F1E-7DEEF83E99DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0942E70B-0545-4515-9031-FE2CFC8E66DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0942E70B-0545-4515-9031-FE2CFC8E66DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0942E70B-0545-4515-9031-FE2CFC8E66DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0942E70B-0545-4515-9031-FE2CFC8E66DF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
