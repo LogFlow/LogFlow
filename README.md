@@ -1,4 +1,4 @@
 LogFlow
 =======
 
-An simple log flow agent aimed for use with elastic search and Kibana.
+An simple log flow agent aimed for use with Elasticsearch and Kibana.
