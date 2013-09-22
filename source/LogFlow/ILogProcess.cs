@@ -2,7 +2,7 @@
 
 namespace LogFlow
 {
-	interface ILogProcess
+	public interface ILogProcess
 	{
 		Result ExecuteProcess(string logLine, JObject incomingResult);
 	}
