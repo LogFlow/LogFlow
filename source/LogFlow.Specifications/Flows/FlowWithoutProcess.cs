@@ -11,7 +11,7 @@ namespace LogFlow.Specifications.Flows
     {
         public FlowWithoutProcess()
         {
-            CreateProcess("TestProcess", new TestInput());
+            CreateProcess("TestProcess", new EmptyInput());
         }
     }
 }

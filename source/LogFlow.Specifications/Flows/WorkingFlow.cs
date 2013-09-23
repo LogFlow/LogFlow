@@ -6,7 +6,7 @@ namespace LogFlow.Specifications.Flows
     {
         public WorkingFlow()
         {
-            CreateProcess("TestProcess", new TestInput())
+            CreateProcess("TestProcess", new EmptyInput())
                 .AddProcess(new TestProcess());
         }
     }

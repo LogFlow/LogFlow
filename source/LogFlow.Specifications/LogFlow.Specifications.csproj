@@ -51,12 +51,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Flows\EmptyFlow.cs" />
+    <Compile Include="Flows\FlowExecutionSpecs.cs" />
     <Compile Include="Flows\FlowWithoutInput.cs" />
     <Compile Include="Flows\FlowWithoutName.cs" />
     <Compile Include="Flows\FlowWithoutProcess.cs" />
+    <Compile Include="Flows\SimpleFlow.cs" />
+    <Compile Include="Flows\SimpleTagProcess.cs" />
     <Compile Include="Flows\WorkingFlow.cs" />
+    <Compile Include="Helpers\ReportToCurrentResultProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Helpers\TestInput.cs" />
+    <Compile Include="Helpers\EmptyInput.cs" />
     <Compile Include="Helpers\TestProcess.cs" />
     <Compile Include="Flows\RegisterFlowSpecs.cs" />
   </ItemGroup>
