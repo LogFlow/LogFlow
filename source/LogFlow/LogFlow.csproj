@@ -63,6 +63,7 @@
     <Compile Include="Builtins\Morphers\LogStashFormatCheckMorpher.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchOutput.cs" />
     <Compile Include="FlowBuilder.cs" />
+    <Compile Include="FluentProcess.cs" />
     <Compile Include="ILogInput.cs" />
     <Compile Include="ILogProcess.cs" />
     <Compile Include="Flow.cs" />

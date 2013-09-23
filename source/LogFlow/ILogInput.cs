@@ -1,7 +1,10 @@
-﻿namespace LogFlow
+﻿using System;
+
+namespace LogFlow
 {
 	public interface ILogInput
 	{
-		Result ReadLine();
+		void StartReading(Func<Result, bool> processResult);
+		void StopReading();
 	}
 }

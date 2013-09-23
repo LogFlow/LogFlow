@@ -2,7 +2,7 @@
 
 namespace LogFlow.Specifications.Flows
 {
-    public class WorkingFlow: Flow
+    public class WorkingFlow : Flow
     {
         public WorkingFlow()
         {
