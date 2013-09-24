@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builtins\Inputs\FileInput.cs" />
+    <Compile Include="Builtins\Inputs\TrackingTextReader.cs" />
     <Compile Include="Builtins\Morphers\LogStashFormatCheckMorpher.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchOutput.cs" />
     <Compile Include="FlowBuilder.cs" />
