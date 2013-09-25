@@ -7,8 +7,9 @@ namespace LogFlow.Builtins.Inputs
 		private readonly TextReader baseReader;
 		private long position;
 
-		public TrackingTextReader(TextReader baseReader)
+		public TrackingTextReader(TextReader baseReader, long startPosition)
 		{
+			position = startPosition;
 			this.baseReader = baseReader;
 		}
 
