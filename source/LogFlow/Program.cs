@@ -14,6 +14,7 @@ namespace LogFlow
 			try
 			{
 				logger.Info("Starting");
+				Console.WriteLine("Things are happening");
 
 				Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
@@ -22,12 +23,11 @@ namespace LogFlow
 				{
 					x.Service<LogFlowEngine>(s =>
 					{
+						s.ConstructUsing(name => new LogFlowEngine()); 
 						s.WhenStarted(tc => tc.Start());
 						s.WhenStopped(tc => tc.Stop());
 					});
-
-					x.UseNLog();
-
+					
 					x.RunAsLocalSystem();
 					x.SetDescription("Fluently processes log files");
 					x.SetDisplayName("LogFlow");
@@ -36,9 +36,10 @@ namespace LogFlow
 
 				logger.Info("Started");
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				logger.Error("Failed to start", ex);
+				Console.WriteLine(ex);
 			}
 			
 			//Start flows, run i parralell

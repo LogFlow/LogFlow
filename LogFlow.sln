@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{EB3DDD
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogFlow.Examples", "LogFlow.Examples\LogFlow.Examples.csproj", "{C4B67E2E-890D-4C68-B525-93CF4F5AD567}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{0942E70B-0545-4515-9031-FE2CFC8E66DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0942E70B-0545-4515-9031-FE2CFC8E66DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0942E70B-0545-4515-9031-FE2CFC8E66DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4B67E2E-890D-4C68-B525-93CF4F5AD567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4B67E2E-890D-4C68-B525-93CF4F5AD567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4B67E2E-890D-4C68-B525-93CF4F5AD567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4B67E2E-890D-4C68-B525-93CF4F5AD567}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

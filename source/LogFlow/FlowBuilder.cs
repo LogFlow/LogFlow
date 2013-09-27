@@ -51,15 +51,14 @@ namespace LogFlow
 
 		public void StartFlow(Flow flow)
 		{
-			var result = new Result
-			{
-				Json = new JObject
-				{
-					new JProperty("hostname", Environment.MachineName),
-					new JProperty("loggerName", flow.GetType().FullName),
-					new JProperty("loggerVersion", flow.GetType().Assembly.GetName().Version)
-				}
-			};
+			var result = new Result();
+			var json = new JObject(
+				new JProperty("hostname", Environment.MachineName),
+				new JProperty("loggerName", flow.GetType().FullName),
+				new JProperty("loggerVersion", flow.GetType().Assembly.GetName().Version.ToString())
+			);
+
+
 
 			flow.FluentProcess.Input.Start(flow.FluentProcess, result);
 		}
