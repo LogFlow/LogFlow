@@ -10,7 +10,7 @@ namespace LogFlow.Specifications.Helpers
 			processResult(new Result());
 		}
 
-		public void StopReading()
+		public void Stop()
 		{
 		}
 	}

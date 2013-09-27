@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace LogFlow
 {
@@ -50,7 +51,17 @@ namespace LogFlow
 
 		public void StartFlow(Flow flow)
 		{
-			flow.FluentProcess.Input.StartReading(flow.FluentProcess.TryProcessInput);
+			var result = new Result
+			{
+				Json = new JObject
+				{
+					new JProperty("hostname", Environment.MachineName),
+					new JProperty("loggerName", flow.GetType().FullName),
+					new JProperty("loggerVersion", flow.GetType().Assembly.GetName().Version)
+				}
+			};
+
+			flow.FluentProcess.Input.Start(flow.FluentProcess, result);
 		}
 	}
 }

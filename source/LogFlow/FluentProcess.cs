@@ -11,14 +11,11 @@ namespace LogFlow
 		public string Name { get; set; }
 		public ILogInput Input { get; set; }
 		public List<ILogProcess> Processes = new List<ILogProcess>();
-		public bool TryProcessInput(Result result)
+		public bool TryRunProcesses(Result result)
 		{
 			try
 			{
-				Processes.Aggregate(result, (current, logProcess) =>
-					{
-						return logProcess.ExecuteProcess(current);
-					});
+				Processes.Aggregate(result, (current, logProcess) => logProcess.ExecuteProcess(current));
 				return true;
 			}
 			catch(Exception exception)

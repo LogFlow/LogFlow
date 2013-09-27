@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,8 +9,6 @@ namespace LogFlow.Builtins.Inputs
 {
 	public class FileInput : ILogInput
 	{
-		private readonly string _flowName;
-		private readonly string _path;
 		private readonly string _directory;
 		private readonly string _filter;
 		private readonly Encoding _encoding;
@@ -19,12 +16,10 @@ namespace LogFlow.Builtins.Inputs
 		private readonly ConcurrentQueue<string> _fileChangeQue = new ConcurrentQueue<string>();
 		private FileSystemWatcher _watcher;
 
-		public FileInput(string flowName, string path) : this(flowName, path, Encoding.UTF8) { }
+		public FileInput(string path) : this(path, Encoding.UTF8) { }
 		
-		public FileInput(string flowName,  string path, Encoding encoding)
+		public FileInput(string path, Encoding encoding)
 		{
-			_flowName = flowName;
-			_path = path;
 			_directory = Path.GetDirectoryName(path);
 			_filter = Path.GetFileName(path);
 			_filter = string.IsNullOrWhiteSpace(_filter) ? "*" : _filter.Trim();
@@ -32,51 +27,56 @@ namespace LogFlow.Builtins.Inputs
 			_encoding = encoding;
 		}
 
-		public void StartReading(Func<Result, bool> processResult)
+		public void Start(FluentProcess processContext, Result result)
 		{
 			AddCurrentFilesToQue();
 			StartFolderWatcher();
-			StartFileQueReader();
+			StartFileQueReader(processContext, result);
 		}
 
-		private void StartFileQueReader()
+		private void StartFileQueReader(FluentProcess processContext, Result result)
 		{
 			_queueReaderTask = new Task(() =>
 			{
 				while(true)
 				{
 					string dequedResult;
-					if(_fileChangeQue.TryDequeue(out dequedResult))
+					if(!_fileChangeQue.TryDequeue(out dequedResult)) continue;
+
+					var lastPostion = 0L;
+					var filePositions = StateStorage.Get<Dictionary<string, long>>(processContext.Name) ?? new Dictionary<string, long>();
+
+					if(filePositions.ContainsKey(dequedResult))
+						lastPostion = filePositions[dequedResult];
+						
+					using(var fs = new TextFileLineReader(dequedResult, _encoding))
 					{
-						//Get poistion in file.
-						var lastPostion = 0l;
-						var somethig = StateStorage.Get<Dictionary<string, long>>("");
-						if(somethig.ContainsKey(dequedResult))
-							lastPostion = somethig[dequedResult];
+						fs.Position = lastPostion;
 
-						using(var fileStream = File.OpenText(dequedResult))
+						while(fs.Position < fs.Length)
 						{
-							var mjau = fileStream.ReadLine();
+							fs.Position = lastPostion;
+							var lineResult = fs.ReadLine();
+							if(string.IsNullOrWhiteSpace(lineResult))
+								continue;
 
+							result.Line = lineResult;
+							processContext.TryRunProcesses(result);
+							
+							if(filePositions.ContainsKey(dequedResult))
+								filePositions[dequedResult] = fs.Position;
+							else
+								filePositions.Add(dequedResult, fs.Position);
+
+							StateStorage.Insert(processContext.Name, filePositions);
 						}
-
-
-						file.Close();
-
-						using(var fr = new FileReader(path.FullName, lastReadPosition, configuration.Encoding))
-						{
-						}
-
-						//Read next line
-						//Run process thinga maggiy
-						//Save new position
 					}
 				}
-
-			},
-			TaskCreationOptions.LongRunning);
+				
+			}, TaskCreationOptions.LongRunning);
 
 			_queueReaderTask.Start();
+
 		}
 
 		private void StartFolderWatcher()
@@ -94,7 +94,7 @@ namespace LogFlow.Builtins.Inputs
 
 		}
 
-		public void StopReading()
+		public void Stop()
 		{
 			_queueReaderTask.Dispose();
 			_watcher.Dispose();
