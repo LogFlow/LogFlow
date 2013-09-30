@@ -2,7 +2,7 @@
 {
 	public interface ILogInput
 	{
-		void Start(FluentLogContext logContextContext, Result result);
+		void Start(FluentLogContext logContext, Result result);
 		void Stop();
 	}
 }

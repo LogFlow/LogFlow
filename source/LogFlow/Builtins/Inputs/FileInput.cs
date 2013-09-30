@@ -29,13 +29,13 @@ namespace LogFlow.Builtins.Inputs
 			_encoding = encoding;
 		}
 
-		public void Start(FluentLogContext logContextContext, Result result)
+		public void Start(FluentLogContext logContext, Result result)
 		{
-			Console.WriteLine("Starting FileInput: " + logContextContext.LogType);
+			Console.WriteLine("Starting FileInput: " + logContext.LogType);
 			AddCurrentFilesToQue();
 			StartFolderWatcher();
-			StartFileQueReader(logContextContext, result);
-			Console.WriteLine("Started FileInput: " + logContextContext.LogType);
+			StartFileQueReader(logContext, result);
+			Console.WriteLine("Started FileInput: " + logContext.LogType);
 		}
 
 		private void StartFileQueReader(FluentLogContext logContextContext, Result result)
