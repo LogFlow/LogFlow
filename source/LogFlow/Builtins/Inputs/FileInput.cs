@@ -106,7 +106,7 @@ namespace LogFlow.Builtins.Inputs
 		private void AddCurrentFilesToQue()
 		{
 
-			var filesToAdd = Directory.GetFiles(_directory, _filter);
+            var filesToAdd = Directory.GetFiles(_directory, _filter).OrderBy(f => new FileInfo(f).LastWriteTime);
 			filesToAdd.ToList().ForEach(file => _fileChangeQue.Enqueue(file));
 
 		}
