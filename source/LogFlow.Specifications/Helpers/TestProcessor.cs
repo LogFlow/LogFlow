@@ -1,6 +1,6 @@
 ﻿namespace LogFlow.Specifications.Helpers
 {
-	public class TestProcess : ILogProcess
+	public class TestProcessor : ILogProcessor
 	{
 		public Result ExecuteProcess(Result result)
 		{

@@ -7,11 +7,11 @@ using Newtonsoft.Json.Linq;
 
 namespace LogFlow.Specifications.Flows
 {
-	public class SimpleTagProcess : ILogProcess
+	public class SimpleTagProcessor : ILogProcessor
 	{
 		private readonly string _tagName;
 
-		public SimpleTagProcess(string tagName)
+		public SimpleTagProcessor(string tagName)
 		{
 			_tagName = tagName;
 		}

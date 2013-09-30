@@ -2,9 +2,9 @@
 
 namespace LogFlow.Builtins.Outputs
 {
-	public class LineToConsoleOutput : ILogProcess
+	public class LineToConsoleOutput : ILogProcessor
 	{
-		public Result ExecuteProcess(Result result)
+		public Result ExecuteProcess(FluentLogContext logContextContext, Result result)
 		{
 			Console.WriteLine(result.Line);
 			return result;

@@ -29,16 +29,16 @@ namespace LogFlow.Builtins.Inputs
 			_encoding = encoding;
 		}
 
-		public void Start(FluentProcess processContext, Result result)
+		public void Start(FluentLogContext logContextContext, Result result)
 		{
-			Console.WriteLine("Starting FileInput: " + processContext.Name);
+			Console.WriteLine("Starting FileInput: " + logContextContext.LogType);
 			AddCurrentFilesToQue();
 			StartFolderWatcher();
-			StartFileQueReader(processContext, result);
-			Console.WriteLine("Started FileInput: " + processContext.Name);
+			StartFileQueReader(logContextContext, result);
+			Console.WriteLine("Started FileInput: " + logContextContext.LogType);
 		}
 
-		private void StartFileQueReader(FluentProcess processContext, Result result)
+		private void StartFileQueReader(FluentLogContext logContextContext, Result result)
 		{
 			_queueReaderTask = new Task(() =>
 			{
@@ -52,7 +52,7 @@ namespace LogFlow.Builtins.Inputs
 					if(!_fileChangeQue.TryDequeue(out dequedResult)) continue;
 					
 					var lastPostion = 0L;
-					var filePositions = StateStorage.Get<Dictionary<string, long>>(processContext.Name) ?? new Dictionary<string, long>();
+					var filePositions = StateStorage.Get<Dictionary<string, long>>(logContextContext.LogType) ?? new Dictionary<string, long>();
 
 					if(filePositions.ContainsKey(dequedResult))
 						lastPostion = filePositions[dequedResult];
@@ -69,14 +69,14 @@ namespace LogFlow.Builtins.Inputs
 								continue;
 
 							result.Line = lineResult;
-							processContext.TryRunProcesses(result);
+							logContextContext.TryRunProcesses(result);
 							
 							if(filePositions.ContainsKey(dequedResult))
 								filePositions[dequedResult] = fs.Position;
 							else
 								filePositions.Add(dequedResult, fs.Position);
 
-							StateStorage.Insert(processContext.Name, filePositions);
+							StateStorage.Insert(logContextContext.LogType, filePositions);
 						}
 					}
 				}
@@ -106,7 +106,7 @@ namespace LogFlow.Builtins.Inputs
 		private void AddCurrentFilesToQue()
 		{
 
-            var filesToAdd = Directory.GetFiles(_directory, _filter).OrderBy(f => new FileInfo(f).LastWriteTime);
+			var filesToAdd = Directory.GetFiles(_directory, _filter).OrderBy(f => new FileInfo(f).LastWriteTime);
 			filesToAdd.ToList().ForEach(file => _fileChangeQue.Enqueue(file));
 
 		}

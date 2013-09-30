@@ -43,9 +43,6 @@
     <Reference Include="Nancy.Hosting.Self">
       <HintPath>..\..\packages\Nancy.Hosting.Self.0.20.0\lib\net40\Nancy.Hosting.Self.dll</HintPath>
     </Reference>
-    <Reference Include="Nest">
-      <HintPath>..\..\packages\NEST.0.11.4.0\lib\NET4\Nest.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.5.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -67,17 +64,19 @@
     <Compile Include="Builtins\Inputs\FileInput.cs" />
     <Compile Include="Builtins\Inputs\TextFileLineReader.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchConfiguration.cs" />
+    <Compile Include="Builtins\Outputs\ElasticSearchFields.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchOutput.cs" />
     <Compile Include="Builtins\Outputs\LineToConsoleOutput.cs" />
     <Compile Include="FlowBuilder.cs" />
-    <Compile Include="FluentProcess.cs" />
+    <Compile Include="FluentLogContext.cs" />
     <Compile Include="ILogInput.cs" />
-    <Compile Include="ILogProcess.cs" />
-    <Compile Include="Flow.cs" />
+    <Compile Include="ILogProcessor.cs" />
+    <Compile Include="LogFlow.cs" />
     <Compile Include="LogFlowEngine.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResultData.cs" />
     <Compile Include="StateStorage.cs" />
   </ItemGroup>
   <ItemGroup>

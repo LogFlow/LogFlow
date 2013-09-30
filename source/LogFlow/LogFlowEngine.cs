@@ -24,7 +24,7 @@ namespace LogFlow
 
 			var flowTypes = allAssemblies
 					   .SelectMany(assembly => assembly.GetTypes())
-					   .Where(type => type.IsSubclassOf(typeof(Flow)));
+					   .Where(type => type.IsSubclassOf(typeof(LogFlow)));
 
 			logger.Trace("Number of flows found: " + flowTypes.Count());
 
@@ -33,13 +33,13 @@ namespace LogFlow
 				
 				try
 				{
-					var flow = (Flow)Activator.CreateInstance(flowType);
-					logger.Trace("Starting flow: " + flow.FluentProcess.Name);
-					Console.WriteLine("Starting flow: " + flow.FluentProcess.Name);
+					var flow = (LogFlow)Activator.CreateInstance(flowType);
+					logger.Trace("Starting flow: " + flow.FluentLogContext.LogType);
+					Console.WriteLine("Starting flow: " + flow.FluentLogContext.LogType);
 					FlowBuilder.BuildAndRegisterFlow(flow);
 					FlowBuilder.StartFlow(flow);
-					logger.Trace("Started flow: " + flow.FluentProcess.Name);
-					Console.WriteLine("Started flow: " + flow.FluentProcess.Name);
+					logger.Trace("Started flow: " + flow.FluentLogContext.LogType);
+					Console.WriteLine("Started flow: " + flow.FluentLogContext.LogType);
 				}
 				catch(Exception exception)
 				{

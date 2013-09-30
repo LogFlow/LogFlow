@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LogFlow.Specifications.Flows
 {
-    public class EmptyFlow : Flow
+    public class EmptyLogFlow : LogFlow
     {
     }
 }

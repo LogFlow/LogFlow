@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using LogFlow.Builtins.Outputs;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,57 +11,53 @@ namespace LogFlow
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		public List<FluentProcess> Flows = new List<FluentProcess>();
+		public List<FluentLogContext> Flows = new List<FluentLogContext>();
 
-		public void BuildAndRegisterFlow(Flow flow)
+		public void BuildAndRegisterFlow(LogFlow logFlow)
 		{
-			if(flow.FluentProcess == null)
+			if(logFlow.FluentLogContext == null)
 			{
-				logger.Error("No flow has been registered for " + flow.GetType().FullName);
+				logger.Error("No LogFlow has been registered for " + logFlow.GetType().FullName);
 				return;
 			}
 
-			var flowToRegister = flow.FluentProcess;
+			var flowToRegister = logFlow.FluentLogContext;
 
-			if(string.IsNullOrWhiteSpace(flowToRegister.Name))
+			if(string.IsNullOrWhiteSpace(flowToRegister.LogType))
 			{
-				logger.Error("No name for flow has been registered for " + flow.GetType().FullName + ". A name must be entered for each process.");
+				logger.Error("No name for LogFlow has been registered for " + logFlow.GetType().FullName + ". A name must be entered for each processor.");
 				return;
 			}
 
-			if(Flows.Any(f => f.Name.Equals(flowToRegister.Name, StringComparison.InvariantCultureIgnoreCase)))
+			if(Flows.Any(f => f.LogType.Equals(flowToRegister.LogType, StringComparison.InvariantCultureIgnoreCase)))
 			{
-				logger.Error("There is already a flow registered with the name " + flowToRegister.Name + ". Flow names must be uniqe.");
+				logger.Error("There is already a LogFlow registered with the name " + flowToRegister.LogType + ". LogFlow names must be uniqe.");
 				return;
 			}
 
 			if (flowToRegister.Input == null)
 			{
-				logger.Error("Flow " + flowToRegister.Name + " doesn't have an input.");
+				logger.Error("LogFlow " + flowToRegister.LogType + " doesn't have an input.");
 				return;
 			}
 
 			if (flowToRegister.Processes == null || flowToRegister.Processes.Count == 0)
 			{
-				logger.Error("Flow " + flowToRegister.Name + " doesn't have any type of processing.");
+				logger.Error("LogFlow " + flowToRegister.LogType + " doesn't have any type of processing.");
 				return;
 			}
 
 			Flows.Add(flowToRegister);            
 		}
 
-		public void StartFlow(Flow flow)
+		public void StartFlow(LogFlow logFlow)
 		{
-			var result = new Result();
-			var json = new JObject(
-				new JProperty("hostname", Environment.MachineName),
-				new JProperty("loggerName", flow.GetType().FullName),
-				new JProperty("loggerVersion", flow.GetType().Assembly.GetName().Version.ToString())
-			);
+			var startJson = new JObject();
 
+			var result = new Result() { Json = startJson };
+			
 
-
-			flow.FluentProcess.Input.Start(flow.FluentProcess, result);
+			logFlow.FluentLogContext.Input.Start(logFlow.FluentLogContext, result);
 		}
 	}
 }

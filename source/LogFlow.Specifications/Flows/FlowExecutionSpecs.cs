@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace LogFlow.Specifications.Flows
 {
-	[Subject(typeof(Flow))]
+	[Subject(typeof(LogFlow))]
 	public class when_starting_simple_flow
 	{
 		static FlowBuilder builder = new FlowBuilder();
@@ -12,11 +12,11 @@ namespace LogFlow.Specifications.Flows
 
 		Establish context = () =>
 		{
-			var flowToTest = new SimpleFlow();
+			var flowToTest = new SimpleLogFlow();
 			builder.BuildAndRegisterFlow(flowToTest);
 			builder.StartFlow(flowToTest);
 
-			tags = ReportToCurrentResultProcess.CurrentResult.Json["tags"] as JArray;
+			tags = ReportToCurrentResultProcessor.CurrentResult.Json["tags"] as JArray;
 
 		};
 

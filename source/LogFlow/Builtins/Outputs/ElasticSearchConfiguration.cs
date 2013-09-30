@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace LogFlow.Builtins.Outputs
+﻿namespace LogFlow.Builtins.Outputs
 {
     public class ElasticSearchConfiguration
     {

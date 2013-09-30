@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace LogFlow
+﻿namespace LogFlow
 {
 	public interface ILogInput
 	{
-		void Start(FluentProcess processContext, Result result);
+		void Start(FluentLogContext logContextContext, Result result);
 		void Stop();
 	}
 }

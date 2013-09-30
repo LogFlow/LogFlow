@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace LogFlow.Specifications.Flows
 {
-    public class FlowWithoutInput : Flow
+    public class LogFlowWithoutName : LogFlow
     {
-        public FlowWithoutInput()
+        public LogFlowWithoutName()
         {
-            CreateProcess("TestProcess", null)
-                .AddProcess(new TestProcess());
+            CreateProcess("", new EmptyInput())
+                .AddProcess(new TestProcessor());
         }
     }
 }
