@@ -24,7 +24,7 @@ namespace LogFlow.Builtins.Outputs
 			_client = new ElasticClient(clientSettings);
 		}
 
-		public Result ExecuteProcess(FluentLogContext logContextContext, Result result)
+		public Result ExecuteProcess(FluentLogContext logContext, Result result)
 		{
 			//Ensure requered properties
 			var timestampProperty = result.Json[ElasticSearchFields.Timestamp] as JValue;
@@ -53,7 +53,7 @@ namespace LogFlow.Builtins.Outputs
 
 			var lineId = Guid.NewGuid().ToString();
 			result.Json[ElasticSearchFields.Id] = new JValue(lineId);
-			result.Json[ElasticSearchFields.Type] = new JValue(logContextContext.LogType);
+			result.Json[ElasticSearchFields.Type] = new JValue(logContext.LogType);
 			result.Json[ElasticSearchFields.Source] = new JValue(Environment.MachineName);
 
 			if(!string.IsNullOrWhiteSpace(_configuration.Ttl))
@@ -61,7 +61,7 @@ namespace LogFlow.Builtins.Outputs
 				result.Json[ElasticSearchFields.TTL] = new JValue(_configuration.Ttl);
 			}
 
-			IndexLog(result.Json.ToString(Newtonsoft.Json.Formatting.None), timestamp, logContextContext.LogType, lineId);
+			IndexLog(result.Json.ToString(Newtonsoft.Json.Formatting.None), timestamp, logContext.LogType, lineId);
 			
 			return result;
 		}

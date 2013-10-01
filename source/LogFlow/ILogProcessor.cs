@@ -2,6 +2,6 @@
 {
 	public interface ILogProcessor
 	{
-		Result ExecuteProcess(FluentLogContext logContextContext, Result result);
+		Result ExecuteProcess(FluentLogContext logContext, Result result);
 	}
 }
