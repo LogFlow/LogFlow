@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Globalization;
-using System.Threading;
 using NLog;
 using Nest;
 using Newtonsoft.Json.Linq;
@@ -70,7 +70,14 @@ namespace LogFlow.Builtins.Outputs
 			var indexName = BuildIndexName(timestamp);
 			EnsureIndexExists(indexName);
 
-			var indexResult = _rawClient.IndexPut(indexName, logType, lineId, jsonBody);
+			var queryString = new NameValueCollection();
+
+			if(!string.IsNullOrWhiteSpace(_configuration.Ttl))
+			{
+				queryString.Add("ttl", _configuration.Ttl);
+			}
+
+			var indexResult = _rawClient.IndexPut(indexName, logType, lineId, jsonBody, queryString);
 
 			if (!indexResult.Success)
 			{
