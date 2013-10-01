@@ -71,17 +71,13 @@ namespace LogFlow.Builtins.Outputs
 			var indexName = BuildIndexName(timestamp);
 			EnsureIndexExists(indexName);
 
-			while(true)
+			var indexResult = _rawClient.IndexPut(indexName, logType, lineId, jsonBody);
+
+			if(!indexResult.Success)
 			{
-				var indexResult = _rawClient.IndexPut(indexName, logType, lineId, jsonBody);
-				
-				if(!indexResult.Success)
-				{
-					logger.Error(string.Format("Failed to index: '{0}'. Result: '{1}'. Retrying...", jsonBody, indexResult.Result));
-					Thread.Sleep(10000);
-				}
+				logger.Error(string.Format("Failed to index: '{0}'. Result: '{1}'. Retrying...", jsonBody, indexResult.Result));
+				Thread.Sleep(10000);
 			}
-			
 		}
 
 		private string BuildIndexName(DateTime timestamp)
@@ -95,17 +91,14 @@ namespace LogFlow.Builtins.Outputs
 			if(indexNames.Contains(indexName))
 				return;
 
-			while(true)
+			if(CreateIndex(indexName))
 			{
-				if(CreateIndex(indexName))
-				{
-					indexNames.Add(indexName);
-					return;
-				}
-
-				logger.Error("ElasticSearch Index could not be created");
-				Thread.Sleep(10000);
+				indexNames.Add(indexName);
+				return;
 			}
+
+			logger.Error("ElasticSearch Index could not be created");
+			Thread.Sleep(10000);
 		}
 
 
