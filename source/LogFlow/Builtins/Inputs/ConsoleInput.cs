@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 
 namespace LogFlow.Builtins.Inputs
 {
 	public class ConsoleInput : ILogInput
 	{
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 		private readonly CancellationTokenSource _tokenSource;
 		private readonly CancellationToken _token;
 
@@ -19,6 +21,8 @@ namespace LogFlow.Builtins.Inputs
 		{
 			Task.Factory.StartNew(() =>
 				{
+					Log.Trace(string.Format("Started ConsoleInput: '{0}'", logContext.LogType));
+
 					while (true)
 					{
 						var lineResult = Console.ReadLine();
@@ -33,6 +37,7 @@ namespace LogFlow.Builtins.Inputs
 
 						if (_token.IsCancellationRequested)
 						{
+							Log.Trace(string.Format("Cancelled ConsoleInput: '{0}'", logContext.LogType));
 							break;
 						}
 					}
