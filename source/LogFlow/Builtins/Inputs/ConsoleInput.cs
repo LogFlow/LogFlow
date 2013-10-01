@@ -36,7 +36,7 @@ namespace LogFlow.Builtins.Inputs
 							break;
 						}
 					}
-				}, _token);
+				}, _token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 		}
 
 		public void Stop()
