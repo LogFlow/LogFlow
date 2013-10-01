@@ -71,6 +71,7 @@
     <Compile Include="Builtins\Outputs\ElasticSearchFields.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchOutput.cs" />
     <Compile Include="Builtins\Outputs\LineToConsoleOutput.cs" />
+    <Compile Include="Builtins\Processors\ElasticSearchTimestampToday.cs" />
     <Compile Include="FlowBuilder.cs" />
     <Compile Include="FluentLogContext.cs" />
     <Compile Include="ILogInput.cs" />
