@@ -11,6 +11,15 @@ namespace LogFlow
 		public string LogType { get; set; }
 		public ILogInput Input { get; set; }
 		public List<ILogProcessor> Processes = new List<ILogProcessor>();
+
+		public DateTime? BrokenStart { get; private set; }
+		public bool IsBroken { get { return BrokenStart != null; } }
+
+		public void BreakFlow()
+		{
+			BrokenStart = DateTime.Now;
+		}
+ 
 		public bool TryRunProcesses(Result result)
 		{
 			try

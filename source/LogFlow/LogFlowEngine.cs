@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using NLog;
+using Nancy.Hosting.Self;
 
 namespace LogFlow
 {
@@ -11,7 +12,7 @@ namespace LogFlow
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		public static FlowBuilder FlowBuilder = new FlowBuilder();
-
+		public static NancyHost nancyHost;
 		public bool Start()
 		{
 			Console.WriteLine("Starting");
@@ -48,6 +49,8 @@ namespace LogFlow
 				}
 			}
 
+			nancyHost = new NancyHost(new Uri("http://localhost:1234"));
+			nancyHost.Start();
 			//Log all running flows.
 
 			return true;
@@ -56,6 +59,12 @@ namespace LogFlow
 		public bool Stop()
 		{
 			//Kill all the things
+			if(nancyHost != null)
+			{
+				nancyHost.Stop();
+				nancyHost.Dispose();
+			}
+				
 			return true;
 		}
 	}

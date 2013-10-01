@@ -74,6 +74,7 @@
     <Compile Include="Builtins\Processors\ElasticSearchTimestampToday.cs" />
     <Compile Include="FlowBuilder.cs" />
     <Compile Include="FluentLogContext.cs" />
+    <Compile Include="HealthModule.cs" />
     <Compile Include="ILogInput.cs" />
     <Compile Include="ILogProcessor.cs" />
     <Compile Include="LogFlow.cs" />
