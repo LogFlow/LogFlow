@@ -2,7 +2,7 @@
 {
 	public class TestProcessor : ILogProcessor
 	{
-		public Result ExecuteProcess(Result result)
+		public Result ExecuteProcess(FluentLogContext logContext, Result result)
 		{
 			return new Result();
 		}

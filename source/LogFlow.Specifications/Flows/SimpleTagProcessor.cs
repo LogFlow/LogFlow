@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
 namespace LogFlow.Specifications.Flows
 {
@@ -16,7 +11,7 @@ namespace LogFlow.Specifications.Flows
 			_tagName = tagName;
 		}
 
-		public Result ExecuteProcess(Result result)
+		public Result ExecuteProcess(FluentLogContext logContext, Result result)
 		{
 			var tagArray = result.Json["tags"] as JArray ?? new JArray();
 			tagArray.Add(new JValue(_tagName));
