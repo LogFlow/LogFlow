@@ -10,7 +10,7 @@ namespace LogFlow.Builtins.Outputs
 {
 	public class ElasticSearchOutput : ILogProcessor
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly ElasticSearchConfiguration _configuration;
 		private readonly HashSet<string> indexNames = new HashSet<string>();
 		private readonly ElasticClient _client;
@@ -26,18 +26,17 @@ namespace LogFlow.Builtins.Outputs
 
 		public Result ExecuteProcess(FluentLogContext logContext, Result result)
 		{
-			//Ensure requered properties
 			var timestampProperty = result.Json[ElasticSearchFields.Timestamp] as JValue;
 			if(timestampProperty == null)
 			{
-				//Log and freak out
+				logger.Error(string.Format("{0} is null", ElasticSearchFields.Timestamp));
 				return null;
 			}
 
 			DateTime timestamp;
 			if(!DateTime.TryParse(timestampProperty.Value.ToString(), out timestamp))
 			{
-				//Log and freak out
+				logger.Error(string.Format("{0} could not be parsed as a datetime.", timestampProperty.Value));
 				return null;
 			}
 
@@ -73,10 +72,13 @@ namespace LogFlow.Builtins.Outputs
 
 			var indexResult = _rawClient.IndexPut(indexName, logType, lineId, jsonBody);
 
-			if(!indexResult.Success)
+			if (!indexResult.Success)
 			{
 				logger.Error(string.Format("Failed to index: '{0}'. Result: '{1}'. Retrying...", jsonBody, indexResult.Result));
-				Thread.Sleep(10000);
+			}
+			else
+			{
+				logger.Trace(string.Format("Indexed '{0}' successfully.", lineId));
 			}
 		}
 
@@ -98,7 +100,6 @@ namespace LogFlow.Builtins.Outputs
 			}
 
 			logger.Error("ElasticSearch Index could not be created");
-			Thread.Sleep(10000);
 		}
 
 
@@ -115,9 +116,14 @@ namespace LogFlow.Builtins.Outputs
 
 			CreateMappings(indexName);
 
-			if(!result.OK)
+			if (!result.OK)
 			{
-				logger.Error(string.Format("Failed to create index: '{0}'. Result: '{1}' Retrying...", indexName, result.ConnectionStatus.Result));
+				logger.Error(string.Format("Failed to create index: '{0}'. Result: '{1}' Retrying...", indexName,
+				                           result.ConnectionStatus.Result));
+			}
+			else
+			{
+				logger.Trace(string.Format("Index '{0}' i successfully created.", indexName));
 			}
 
 			return result.OK;
