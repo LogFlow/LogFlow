@@ -21,7 +21,15 @@ namespace LogFlow.Builtins.Inputs
 				{
 					while (true)
 					{
+						var lineResult = Console.ReadLine();
 
+						if (string.IsNullOrWhiteSpace(lineResult))
+						{
+							continue;
+						}
+
+						result.Line = lineResult;
+						logContext.TryRunProcesses(result);
 
 						if (_token.IsCancellationRequested)
 						{
