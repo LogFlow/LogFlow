@@ -19,6 +19,11 @@ namespace LogFlow
 		{
 			BrokenStart = DateTime.Now;
 		}
+
+		public void UnbreakFlow()
+		{
+			BrokenStart = null;
+		}
  
 		public bool TryRunProcesses(Result result)
 		{
