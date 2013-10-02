@@ -16,7 +16,6 @@ namespace LogFlow.Builtins.Inputs
 
 		private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 		private readonly ConcurrentQueue<string> _changedFiles = new ConcurrentQueue<string>();
-		private Dictionary<string, long> _currentFilePositions;
 		private FileSystemWatcher _watcher;
 
 		private readonly string _path;
@@ -52,8 +51,6 @@ namespace LogFlow.Builtins.Inputs
 				{
 					Log.Trace(string.Format("Started FileInput: '{0}'", logContext.LogType));
 
-					_currentFilePositions = GetCurrentFilePositionsFromStorage(logContext);
-
 					while (!_tokenSource.Token.IsCancellationRequested)
 					{
 						string filePath;
@@ -67,7 +64,7 @@ namespace LogFlow.Builtins.Inputs
 
 						using (var fs = new TextFileLineReader(filePath, _encoding))
 						{
-							fs.Position = GetLastReadFilePostion(filePath);
+							fs.Position = logContext.Storage.Get<long>(GetPositionKey(filePath));
 
 							while (fs.Position < fs.Length)
 							{
@@ -77,9 +74,15 @@ namespace LogFlow.Builtins.Inputs
 									continue;
 
 								result.Line = lineResult;
-								logContext.TryRunProcesses(result);
 
-								StoreLastReadFilePosition(logContext, filePath, fs.Position);
+								if (logContext.TryRunProcesses(result))
+								{
+									logContext.Storage.Insert(GetPositionKey(filePath), fs.Position);
+								}
+								else
+								{
+									logContext.BreakFlow();
+								}
 							}
 						}
 					}
@@ -92,32 +95,9 @@ namespace LogFlow.Builtins.Inputs
 				}, _tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 		}
 
-		private long GetLastReadFilePostion(string filePath)
+		private static string GetPositionKey(string filePath)
 		{
-			return _currentFilePositions.ContainsKey(filePath)
-				       ? _currentFilePositions[filePath]
-				       : 0;
-		}
-
-		private Dictionary<string, long> GetCurrentFilePositionsFromStorage(FluentLogContext logContext)
-		{
-			return StateStorage.Get<Dictionary<string, long>>(logContext.LogType) ?? new Dictionary<string, long>();
-		}
-
-		private void StoreLastReadFilePosition(FluentLogContext logContext, string filePath, long position)
-		{
-			if (_currentFilePositions.ContainsKey(filePath))
-			{
-				_currentFilePositions[filePath] = position;
-			}
-			else
-			{
-				_currentFilePositions.Add(filePath, position);
-			}
-
-			Log.Trace(string.Format("New position: {0}", position));
-
-			StateStorage.Insert(logContext.LogType, _currentFilePositions);
+			return "position_" + filePath;
 		}
 
 		private void StartFileSystemWatcher()

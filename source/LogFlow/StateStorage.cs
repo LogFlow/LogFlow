@@ -1,41 +1,54 @@
 ﻿using System;
 using System.IO;
 using BinaryRage;
-using Newtonsoft.Json;
 
 namespace LogFlow
 {
 	public class StateStorage
 	{
-		public static string GetDbPath()
+		private readonly string _storageName;
+
+		public StateStorage(string storageName)
 		{
-			return  Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StateData");
+			if (string.IsNullOrWhiteSpace(storageName))
+			{
+				throw new ArgumentNullException("storageName");
+			}
+
+			_storageName = storageName;
 		}
 
-		public static void Insert<T>(string key, T objectToInsert)
+		private static string GetBaseStoragePath()
 		{
-			var jsonString = JsonConvert.SerializeObject(objectToInsert);
-			DB<string>.Insert(key, jsonString, GetDbPath());
+			return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StateStorage");
 		}
 
-		public static T Get<T>(string key)
+		private string GetDbPath()
+		{
+			return  Path.Combine(GetBaseStoragePath(), _storageName);
+		}
+
+		public void Insert<T>(string key, T objectToInsert)
+		{
+			DB<T>.Insert(GenerateUniqueKey(key), objectToInsert, GetDbPath());
+			DB<T>.WaitForCompletion();
+		}
+
+		public T Get<T>(string key)
 		{
 			try
 			{
-				Console.WriteLine("AppDomain" + AppDomain.CurrentDomain.BaseDirectory);
-				Console.WriteLine("Get started for " + key + " with path " + GetDbPath());
-				var jsonString = DB<string>.Get(key, GetDbPath());
-
-				if(string.IsNullOrWhiteSpace(jsonString))
-					return default(T);
-
-				return JsonConvert.DeserializeObject<T>(jsonString);
+				return DB<T>.Get(GenerateUniqueKey(key), GetDbPath());
 			}
-			catch(Exception)
+			catch (DirectoryNotFoundException)
 			{
 				return default(T);
 			}
 		}
-		
+
+		private static string GenerateUniqueKey(string key)
+		{
+			return Key.GenerateMD5Hash(key) + "_" + Key.CalculateChecksum(key);
+		}
 	}
 }

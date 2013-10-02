@@ -6,9 +6,9 @@
 
 		protected FluentLogContext CreateProcess(string logType, ILogInput input)
 		{
-			FluentLogContext = new FluentLogContext { LogType = logType, Input = input };
+			FluentLogContext = new FluentLogContext(logType) { Input = input };
 			return FluentLogContext;
-		}        
+		}
 	}
 
 	public static class FluentProcessExtensions
