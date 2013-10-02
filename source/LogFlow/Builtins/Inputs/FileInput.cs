@@ -4,118 +4,168 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 
 namespace LogFlow.Builtins.Inputs
 {
 	public class FileInput : ILogInput
 	{
-		private readonly string _directory;
-		private bool runQueueProcessing = true;
-		private readonly string _filter;
-		private readonly Encoding _encoding;
-		private Task _queueReaderTask;
-		private readonly ConcurrentQueue<string> _fileChangeQue = new ConcurrentQueue<string>();
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+		private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+		private readonly ConcurrentQueue<string> _changedFiles = new ConcurrentQueue<string>();
+		private Dictionary<string, long> _currentFilePositions;
 		private FileSystemWatcher _watcher;
+
+		private readonly string _path;
+		private readonly Encoding _encoding;
 
 		public FileInput(string path) : this(path, Encoding.UTF8) { }
 		
 		public FileInput(string path, Encoding encoding)
 		{
-			_directory = Path.GetDirectoryName(path);
-			_filter = Path.GetFileName(path);
-			_filter = string.IsNullOrWhiteSpace(_filter) ? "*" : _filter.Trim();
-			
+			_path = path;
 			_encoding = encoding;
+		}
+
+		private string GetPath()
+		{
+			return Path.GetDirectoryName(_path);
+		}
+
+		private string GetSearchPattern()
+		{
+			var fileName = Path.GetFileName(_path);
+			return string.IsNullOrWhiteSpace(fileName) ? "*" : fileName.Trim();
 		}
 
 		public void Start(FluentLogContext logContext, Result result)
 		{
-			Console.WriteLine("Starting FileInput: " + logContext.LogType);
-			AddCurrentFilesToQue();
-			StartFolderWatcher();
-			StartFileQueReader(logContext, result);
-			Console.WriteLine("Started FileInput: " + logContext.LogType);
-		}
+			Log.Trace(string.Format("Starting FileInput: '{0}'", logContext.LogType));
 
-		private void StartFileQueReader(FluentLogContext logContextContext, Result result)
-		{
-			_queueReaderTask = new Task(() =>
-			{
-				try
+			AddCurrentFilesToQueue();
+			StartFileSystemWatcher();
+
+			Task.Factory.StartNew(() =>
 				{
+					Log.Trace(string.Format("Started FileInput: '{0}'", logContext.LogType));
 
-				
-				while(runQueueProcessing)
-				{
-					string dequedResult;
-					if(!_fileChangeQue.TryDequeue(out dequedResult)) continue;
-					
-					var lastPostion = 0L;
-					var filePositions = StateStorage.Get<Dictionary<string, long>>(logContextContext.LogType) ?? new Dictionary<string, long>();
+					_currentFilePositions = GetCurrentFilePositionsFromStorage(logContext);
 
-					if(filePositions.ContainsKey(dequedResult))
-						lastPostion = filePositions[dequedResult];
-
-					Console.WriteLine("Starting to read lines in " + dequedResult);
-					using(var fs = new TextFileLineReader(dequedResult, _encoding))
+					while (!_tokenSource.Token.IsCancellationRequested)
 					{
-						fs.Position = lastPostion;
-
-						while(fs.Position < fs.Length)
+						string filePath;
+						if (!_changedFiles.TryDequeue(out filePath))
 						{
-							var lineResult = fs.ReadLine();
-							if(string.IsNullOrWhiteSpace(lineResult))
-								continue;
+							Thread.Sleep(TimeSpan.FromSeconds(1));
+							continue;
+						}
 
-							result.Line = lineResult;
-							logContextContext.TryRunProcesses(result);
-							
-							if(filePositions.ContainsKey(dequedResult))
-								filePositions[dequedResult] = fs.Position;
-							else
-								filePositions.Add(dequedResult, fs.Position);
+						Log.Trace(string.Format("Starting to read lines in '{0}'", filePath));
 
-							StateStorage.Insert(logContextContext.LogType, filePositions);
+						using (var fs = new TextFileLineReader(filePath, _encoding))
+						{
+							fs.Position = GetLastReadFilePostion(filePath);
+
+							while (fs.Position < fs.Length)
+							{
+								var lineResult = fs.ReadLine();
+
+								if (string.IsNullOrWhiteSpace(lineResult))
+									continue;
+
+								result.Line = lineResult;
+								logContext.TryRunProcesses(result);
+
+								StoreLastReadFilePosition(logContext, filePath, fs.Position);
+							}
 						}
 					}
-				}
 
-				}
-				catch(Exception ex)
-				{
-					Console.WriteLine(ex);
-					
-				}
-				
-			}, TaskCreationOptions.LongRunning);
+					if (_tokenSource.Token.IsCancellationRequested)
+					{
+						Log.Trace(string.Format("Cancelled FileInput: '{0}'", logContext.LogType));
+					}
 
-			_queueReaderTask.Start();
-
+				}, _tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 		}
 
-		private void StartFolderWatcher()
+		private long GetLastReadFilePostion(string filePath)
 		{
-			_watcher = new FileSystemWatcher(_directory, _filter);
-			_watcher.Changed += (sender, args) => _fileChangeQue.Enqueue(args.FullPath);
-			_watcher.Created += (sender, args) => _fileChangeQue.Enqueue(args.FullPath);
+			return _currentFilePositions.ContainsKey(filePath)
+				       ? _currentFilePositions[filePath]
+				       : 0;
+		}
+
+		private Dictionary<string, long> GetCurrentFilePositionsFromStorage(FluentLogContext logContext)
+		{
+			return StateStorage.Get<Dictionary<string, long>>(logContext.LogType) ?? new Dictionary<string, long>();
+		}
+
+		private void StoreLastReadFilePosition(FluentLogContext logContext, string filePath, long position)
+		{
+			if (_currentFilePositions.ContainsKey(filePath))
+			{
+				_currentFilePositions[filePath] = position;
+			}
+			else
+			{
+				_currentFilePositions.Add(filePath, position);
+			}
+
+			Log.Trace(string.Format("New position: {0}", position));
+
+			StateStorage.Insert(logContext.LogType, _currentFilePositions);
+		}
+
+		private void StartFileSystemWatcher()
+		{
+			Log.Trace(string.Format("Starting FileSystemWatcher for {0}", _path));
+
+			_watcher = new FileSystemWatcher(GetPath(), GetSearchPattern());
+			_watcher.Changed += (sender, args) => _changedFiles.Enqueue(args.FullPath);
+			_watcher.Created += (sender, args) => _changedFiles.Enqueue(args.FullPath);
 			_watcher.EnableRaisingEvents = true;
-			
+
+			Log.Trace(string.Format("Started FileSystemWatcher for {0}", _path));
 		}
 
-		private void AddCurrentFilesToQue()
+		private void StopFileSystemWatcher()
 		{
+			if (_watcher == null)
+			{
+				return;
+			}
 
-			var filesToAdd = Directory.GetFiles(_directory, _filter).OrderBy(f => new FileInfo(f).LastWriteTime);
-			filesToAdd.ToList().ForEach(file => _fileChangeQue.Enqueue(file));
+			Log.Trace("Stopping FileSystemWatcher");
 
+			_watcher.EnableRaisingEvents = false;
+			_watcher.Dispose();
+
+			Log.Trace("Stopped FileSystemWatcher");
+		}
+
+		private void AddCurrentFilesToQueue()
+		{
+			Log.Trace("Adding all current files as changed.");
+
+			foreach (var file in GetCurrentFiles())
+			{
+				_changedFiles.Enqueue(file);
+			}
+		}
+
+		private IEnumerable<string> GetCurrentFiles()
+		{
+			return Directory.GetFiles(GetPath(), GetSearchPattern()).OrderBy(f => new FileInfo(f).LastWriteTime);
 		}
 
 		public void Stop()
 		{
-			runQueueProcessing = false;
-			_queueReaderTask.Dispose();
-			_watcher.Dispose();
+			_tokenSource.Cancel();
+			StopFileSystemWatcher();
 		}
 	}
 }
