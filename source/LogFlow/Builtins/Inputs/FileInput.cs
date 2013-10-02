@@ -51,7 +51,7 @@ namespace LogFlow.Builtins.Inputs
 				{
 					Log.Trace(string.Format("Started FileInput: '{0}'", logContext.LogType));
 
-					while (!_tokenSource.Token.IsCancellationRequested)
+					while (true)
 					{
 						string filePath;
 						if (!_changedFiles.TryDequeue(out filePath))
@@ -85,13 +85,13 @@ namespace LogFlow.Builtins.Inputs
 								}
 							}
 						}
-					}
 
-					if (_tokenSource.Token.IsCancellationRequested)
-					{
-						Log.Trace(string.Format("Cancelled FileInput: '{0}'", logContext.LogType));
+						if (_tokenSource.Token.IsCancellationRequested)
+						{
+							Log.Trace(string.Format("Cancelled FileInput: '{0}'", logContext.LogType));
+							break;
+						}
 					}
-
 				}, _tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 		}
 
