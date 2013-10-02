@@ -1,7 +1,7 @@
 ﻿namespace LogFlow
 {
-	public interface ILogProcessor
+	public interface ILogProcessor : INeedContext
 	{
-		Result ExecuteProcess(FluentLogContext logContext, Result result);
+		Result Process(Result result);
 	}
 }

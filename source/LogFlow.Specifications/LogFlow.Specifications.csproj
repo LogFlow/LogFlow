@@ -58,7 +58,7 @@
     <Compile Include="Flows\SimpleLogFlow.cs" />
     <Compile Include="Flows\SimpleTagProcessor.cs" />
     <Compile Include="Flows\WorkingLogFlow.cs" />
-    <Compile Include="Helpers\ReportToCurrentResultProcessor.cs" />
+    <Compile Include="Helpers\ReportToCurrentResultOutput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\EmptyInput.cs" />
     <Compile Include="Helpers\TestProcessor.cs" />

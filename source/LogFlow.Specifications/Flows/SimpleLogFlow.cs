@@ -6,10 +6,11 @@ namespace LogFlow.Specifications.Flows
 	{
 		public SimpleLogFlow()
 		{
-			CreateProcess("SimpleLogFlow", new EmptyInput())
-				.AddProcess(new SimpleTagProcessor("Duck"))
-				.AddProcess(new SimpleTagProcessor("Cow"))
-				.AddProcess(new ReportToCurrentResultProcessor());
+			CreateProcess("SimpleLogFlow")
+				.FromInput(new EmptyInput())
+				.Then(new SimpleTagProcessor("Duck"))
+				.Then(new SimpleTagProcessor("Cow"))
+				.ToOutput(new ReportToCurrentResultOutput());
 		}
 	}
 }

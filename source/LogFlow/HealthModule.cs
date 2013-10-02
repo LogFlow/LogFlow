@@ -9,7 +9,7 @@ namespace LogFlow
 		{
 			Get["/"] = _ =>
 			{
-				var flows = LogFlowEngine.FlowBuilder.Flows.Select(f => new { f.LogType, f.IsBroken, f.BrokenStart, Processes = f.Processes.Count });
+				var flows = LogFlowEngine.FlowBuilder.Flows.Select(f => new { f.FlowStructure.Context.LogType, CurrentStatus = f.CurrentStatus.ToString() });
 				return Response.AsJson(flows);
 			};
 		}

@@ -9,10 +9,10 @@ namespace LogFlow.Examples
 	{
 		public ConsoleToElasticSearch()
 		{
-			Console.WriteLine("ConsoleToElasticSearch constructor is beeing run.");
-			CreateProcess("C2ES", new ConsoleInput())
-				.AddProcess(new ElasticSearchTimestampToday())
-				.AddProcess(new ElasticSearchOutput(new ElasticSearchConfiguration()));
+			CreateProcess()
+				.FromInput(new ConsoleInput())
+				.Then(new ElasticSearchTimestampToday())
+				.ToOutput(new ElasticSearchOutput(new ElasticSearchConfiguration()));
 		}
 	}
 }

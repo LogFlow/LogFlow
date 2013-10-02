@@ -1,8 +1,8 @@
 ﻿namespace LogFlow.Specifications.Helpers
 {
-	public class TestProcessor : ILogProcessor
+	public class TestProcessor : LogProcessor
 	{
-		public Result ExecuteProcess(FluentLogContext logContext, Result result)
+		public override Result Process(Result result)
 		{
 			return new Result();
 		}

@@ -1,13 +1,15 @@
-﻿namespace LogFlow.Specifications.Helpers
+﻿using System;
+
+namespace LogFlow.Specifications.Helpers
 {
-	public class EmptyInput : ILogInput
+	public class EmptyInput : LogInput
 	{
-		public void Start(FluentLogContext logContext, Result result)
+		public override Result GetLine()
 		{
-			logContext.TryRunProcesses(result);
+			return new Result();
 		}
 
-		public void Stop()
+		public override void LineIsProcessed(Guid resultId)
 		{
 		}
 	}

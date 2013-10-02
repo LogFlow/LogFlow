@@ -4,9 +4,9 @@ using Newtonsoft.Json.Linq;
 
 namespace LogFlow.Builtins.Processors
 {
-	public class ElasticSearchTimestampToday : ILogProcessor
+	public class ElasticSearchTimestampToday : LogProcessor
 	{
-		public Result ExecuteProcess(FluentLogContext logContext, Result result)
+		public override Result Process(Result result)
 		{
 			result.Json.Add(ElasticSearchFields.Timestamp, new JValue(DateTime.Now));
 			return result;

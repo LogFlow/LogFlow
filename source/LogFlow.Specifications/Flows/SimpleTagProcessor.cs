@@ -2,7 +2,7 @@
 
 namespace LogFlow.Specifications.Flows
 {
-	public class SimpleTagProcessor : ILogProcessor
+	public class SimpleTagProcessor : LogProcessor
 	{
 		private readonly string _tagName;
 
@@ -11,7 +11,7 @@ namespace LogFlow.Specifications.Flows
 			_tagName = tagName;
 		}
 
-		public Result ExecuteProcess(FluentLogContext logContext, Result result)
+		public override Result Process(Result result)
 		{
 			var tagArray = result.Json["tags"] as JArray ?? new JArray();
 			tagArray.Add(new JValue(_tagName));

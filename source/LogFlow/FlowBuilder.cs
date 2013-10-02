@@ -1,63 +1,51 @@
-﻿using LogFlow.Builtins.Outputs;
-using NLog;
+﻿using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 
 namespace LogFlow
 {
 	public class FlowBuilder
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-		public List<FluentLogContext> Flows = new List<FluentLogContext>();
+		public List<LogFlow> Flows = new List<LogFlow>();
 
 		public void BuildAndRegisterFlow(LogFlow logFlow)
 		{
-			if(logFlow.FluentLogContext == null)
+			if(logFlow.FlowStructure.Context == null)
 			{
-				logger.Error("No LogFlow has been registered for " + logFlow.GetType().FullName);
+				Log.Error("No LogFlow has been registered for " + logFlow.GetType().FullName);
 				return;
 			}
 
-			var flowToRegister = logFlow.FluentLogContext;
+			var flowStructure = logFlow.FlowStructure;
 
-			if(string.IsNullOrWhiteSpace(flowToRegister.LogType))
+			if(string.IsNullOrWhiteSpace(flowStructure.Context.LogType))
 			{
-				logger.Error("No name for LogFlow has been registered for " + logFlow.GetType().FullName + ". A name must be entered for each processor.");
+				Log.Error("No name for LogFlow has been registered for " + logFlow.GetType().FullName + ". A name must be entered for each LogFlow.");
 				return;
 			}
 
-			if(Flows.Any(f => f.LogType.Equals(flowToRegister.LogType, StringComparison.InvariantCultureIgnoreCase)))
+			if(Flows.Any(f => f.FlowStructure.Context.LogType.Equals(flowStructure.Context.LogType, StringComparison.InvariantCultureIgnoreCase)))
 			{
-				logger.Error("There is already a LogFlow registered with the name " + flowToRegister.LogType + ". LogFlow names must be uniqe.");
+				Log.Error("There is already a LogFlow registered with the name " + flowStructure.Context.LogType + ". LogFlow names must be unique.");
 				return;
 			}
 
-			if (flowToRegister.Input == null)
+			if (flowStructure.Input == null)
 			{
-				logger.Error("LogFlow " + flowToRegister.LogType + " doesn't have an input.");
+				Log.Error("LogFlow " + flowStructure.Context.LogType + " doesn't have an input.");
 				return;
 			}
 
-			if (flowToRegister.Processes == null || flowToRegister.Processes.Count == 0)
+			if (flowStructure.Output == null)
 			{
-				logger.Error("LogFlow " + flowToRegister.LogType + " doesn't have any type of processing.");
+				Log.Error("LogFlow " + flowStructure.Context.LogType + " doesn't have an output.");
 				return;
 			}
 
-			Flows.Add(flowToRegister);            
-		}
-
-		public void StartFlow(LogFlow logFlow)
-		{
-			var startJson = new JObject();
-
-			var result = new Result() { Json = startJson };
-			
-
-			logFlow.FluentLogContext.Input.Start(logFlow.FluentLogContext, result);
+			Flows.Add(logFlow);
 		}
 	}
 }

@@ -7,13 +7,13 @@ namespace LogFlow
 {
 	class Program
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
 		static void Main(string[] args)
 		{
 			try
 			{
-				logger.Info("Starting");
+				Log.Info("Starting");
 				Console.WriteLine("Things are happening");
 
 				Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
@@ -34,11 +34,11 @@ namespace LogFlow
 					x.SetServiceName("LogFlow");
 				});
 
-				logger.Info("Started");
+				Log.Info("Started");
 			}
 			catch(Exception ex)
 			{
-				logger.Error("Failed to start", ex);
+				Log.Error("Failed to start", ex);
 				Console.WriteLine(ex);
 			}
 			

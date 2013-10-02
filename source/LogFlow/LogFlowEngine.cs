@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,47 +9,46 @@ namespace LogFlow
 {
 	public class LogFlowEngine
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 		public static FlowBuilder FlowBuilder = new FlowBuilder();
-		public static NancyHost nancyHost;
+		public static NancyHost NancyHost;
+
 		public bool Start()
 		{
-			Console.WriteLine("Starting");
+			Log.Trace("Starting");
 
 			var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-			Console.WriteLine("Assembly Path:" + path);
+			Log.Trace("Assembly Path:" + path);
 
-			var allAssemblies = Directory.GetFiles(path, "*.dll").Select(dll => Assembly.LoadFile(dll)).ToList();
+			var allAssemblies = Directory.GetFiles(path, "*.dll").Select(Assembly.LoadFile).ToList();
 
 			var flowTypes = allAssemblies
 					   .SelectMany(assembly => assembly.GetTypes())
 					   .Where(type => type.IsSubclassOf(typeof(LogFlow)));
 
-			logger.Trace("Number of flows found: " + flowTypes.Count());
+			Log.Trace("Number of flows found: " + flowTypes.Count());
 
 			foreach(var flowType in flowTypes)
 			{
-				
 				try
 				{
 					var flow = (LogFlow)Activator.CreateInstance(flowType);
-					logger.Trace("Starting flow: " + flow.FluentLogContext.LogType);
-					Console.WriteLine("Starting flow: " + flow.FluentLogContext.LogType);
 					FlowBuilder.BuildAndRegisterFlow(flow);
-					FlowBuilder.StartFlow(flow);
-					logger.Trace("Started flow: " + flow.FluentLogContext.LogType);
-					Console.WriteLine("Started flow: " + flow.FluentLogContext.LogType);
 				}
 				catch(Exception exception)
 				{
-					logger.Error(exception);
-					Console.WriteLine(exception);
+					Log.Error(exception);
 				}
 			}
 
-			nancyHost = new NancyHost(new Uri("http://localhost:1234"));
-			nancyHost.Start();
+			foreach (var flow in FlowBuilder.Flows)
+			{
+				flow.Start();
+			}
+
+			NancyHost = new NancyHost(new Uri("http://localhost:1234"));
+			NancyHost.Start();
 			//Log all running flows.
 
 			return true;
@@ -59,12 +57,17 @@ namespace LogFlow
 		public bool Stop()
 		{
 			//Kill all the things
-			if(nancyHost != null)
+			foreach (var flow in FlowBuilder.Flows)
 			{
-				nancyHost.Stop();
-				nancyHost.Dispose();
+				flow.Stop();
 			}
-				
+
+			if(NancyHost != null)
+			{
+				NancyHost.Stop();
+				NancyHost.Dispose();
+			}
+
 			return true;
 		}
 	}

@@ -14,10 +14,9 @@ namespace LogFlow.Specifications.Flows
 		{
 			var flowToTest = new SimpleLogFlow();
 			builder.BuildAndRegisterFlow(flowToTest);
-			builder.StartFlow(flowToTest);
+			flowToTest.Start();
 
-			tags = ReportToCurrentResultProcessor.CurrentResult.Json["tags"] as JArray;
-
+			tags = ReportToCurrentResultOutput.CurrentResult.Json["tags"] as JArray;
 		};
 
 		private It should_have_a_result_with_two_tags
