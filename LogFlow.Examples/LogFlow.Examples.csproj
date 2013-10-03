@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="ConsoleToElasticSearch.cs" />
     <Compile Include="FileToConsoleLogFlow.cs" />
+    <Compile Include="FileToElasticSearch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

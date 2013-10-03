@@ -40,12 +40,10 @@ namespace LogFlow.Builtins.Outputs
 
 			if (!indexResult.Success)
 			{
-				Log.Error(string.Format("Failed to index: '{0}'. Result: '{1}'. Retrying...", jsonBody, indexResult.Result));
+				throw new ApplicationException(string.Format("Failed to index: '{0}'. Result: '{1}'.", jsonBody, indexResult.Result));
 			}
-			else
-			{
-				Log.Trace(string.Format("Indexed '{0}' successfully.", lineId));
-			}
+
+			Log.Trace(string.Format("{0}: ({1}) Indexed successfully.", LogContext.LogType, lineId));
 		}
 
 		private string BuildIndexName(DateTime timestamp)
@@ -53,26 +51,20 @@ namespace LogFlow.Builtins.Outputs
 			return timestamp.ToString(_configuration.IndexNameFormat);
 		}
 
-
 		private void EnsureIndexExists(string indexName)
 		{
 			if(_indexNames.Contains(indexName))
 				return;
 
-			if(CreateIndex(indexName))
-			{
-				_indexNames.Add(indexName);
-				return;
-			}
-
-			Log.Error("ElasticSearch Index could not be created");
+			CreateIndex(indexName);
+			_indexNames.Add(indexName);
 		}
 
 
-		private bool CreateIndex(string indexName)
+		private void CreateIndex(string indexName)
 		{
 			if(_client.IndexExists(indexName).Exists)
-				return true;
+				return;
 
 			var indexSettings = new IndexSettings
 				{
@@ -80,21 +72,17 @@ namespace LogFlow.Builtins.Outputs
 					{"index.store.compress.tv", true},
 					{"index.query.default_field", ElasticSearchFields.Message}
 				};
+
 			IIndicesOperationResponse result = _client.CreateIndex(indexName, indexSettings);
 
 			CreateMappings(indexName);
 
 			if (!result.OK)
 			{
-				Log.Error(string.Format("Failed to create index: '{0}'. Result: '{1}' Retrying...", indexName,
-				                           result.ConnectionStatus.Result));
-			}
-			else
-			{
-				Log.Trace(string.Format("Index '{0}' i successfully created.", indexName));
+				throw new ApplicationException(string.Format("Failed to create index: '{0}'. Result: '{1}'", indexName, result.ConnectionStatus.Result));
 			}
 
-			return result.OK;
+			Log.Trace(string.Format("{0}: Index '{1}' i successfully created.", LogContext.LogType, indexName));
 		}
 
 		private void CreateMappings(string indexName)
@@ -119,16 +107,13 @@ namespace LogFlow.Builtins.Outputs
 			var timestampProperty = result.Json[ElasticSearchFields.Timestamp] as JValue;
 			if (timestampProperty == null)
 			{
-				Log.Error(string.Format("{0} is null", ElasticSearchFields.Timestamp));
 				throw new ArgumentNullException(ElasticSearchFields.Timestamp);
 			}
 
 			DateTime timestamp;
 			if (!DateTime.TryParse(timestampProperty.Value.ToString(), out timestamp))
 			{
-				var message = string.Format("{0} could not be parsed as a datetime.", timestampProperty.Value);
-				Log.Error(message);
-				throw new ArgumentException(message, ElasticSearchFields.Timestamp);
+				throw new ArgumentException(string.Format("{0} could not be parsed as a datetime.", timestampProperty.Value), ElasticSearchFields.Timestamp);
 			}
 
 			timestampProperty.Value = timestamp.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern);
@@ -141,7 +126,7 @@ namespace LogFlow.Builtins.Outputs
 				result.Json[ElasticSearchFields.Message] = messageProperty;
 			}
 
-			var lineId = result.Id.ToString(); //Guid.NewGuid().ToString());
+			var lineId = result.Id.ToString();
 			result.Json[ElasticSearchFields.Id] = new JValue(lineId);
 			result.Json[ElasticSearchFields.Type] = new JValue(LogContext.LogType);
 			result.Json[ElasticSearchFields.Source] = new JValue(Environment.MachineName);

@@ -7,7 +7,7 @@ namespace LogFlow
 {
 	public abstract class LogFlow
 	{
-		private const int TimesToRetry = 3;
+		private const int TimesToRetry = 10;
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 		private readonly LogFlowStructure _flowStructure = new LogFlowStructure();
 		private CancellationTokenSource _tokenSource;
@@ -38,7 +38,7 @@ namespace LogFlow
 		{
 			if (_currentStatus == LogFlowStatus.Running || _currentStatus == LogFlowStatus.Retrying) return;
 
-			Log.Trace(string.Format("Starting flow '{0}'.", _flowStructure.Context.LogType));
+			Log.Info(string.Format("{0}: Starting.", _flowStructure.Context.LogType));
 			_flowStructure.StartAll(); 
 			_tokenSource = new CancellationTokenSource();
 			Task.Factory.StartNew(ExecuteProcess, _tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -48,7 +48,7 @@ namespace LogFlow
 		{
 			if (_tokenSource == null) return;
 
-			Log.Trace(string.Format("Stopping flow '{0}'.", _flowStructure.Context.LogType));
+			Log.Info(string.Format("{0}: Stopping.", _flowStructure.Context.LogType));
 			_tokenSource.Cancel();
 		}
 
@@ -57,7 +57,7 @@ namespace LogFlow
 			var retriedTimes = 0;
 
 			_currentStatus = LogFlowStatus.Running;
-			Log.Trace(string.Format("Started flow '{0}'.", _flowStructure.Context.LogType));
+			Log.Info(string.Format("{0}: Started.", _flowStructure.Context.LogType));
 
 			while (true)
 			{
@@ -70,7 +70,7 @@ namespace LogFlow
 				{
 					_flowStructure.StopAll();
 					_currentStatus = LogFlowStatus.Stopped;
-					Log.Trace(string.Format("Stopped flow '{0}'.", _flowStructure.Context.LogType));
+					Log.Info(string.Format("{0}: Stopped.", _flowStructure.Context.LogType));
 					break;
 				}
 				catch (Exception ex)
@@ -80,8 +80,8 @@ namespace LogFlow
 						retriedTimes++;
 						_currentStatus = LogFlowStatus.Retrying;
 
-						Log.Warn(ex.Message);
-						Log.Warn(string.Format("Retrying flow '{0}' {1} times.", _flowStructure.Context.LogType, retriedTimes));
+						Log.Warn(string.Format("{0}: {1}", _flowStructure.Context.LogType, ex.Message));
+						Log.Warn(string.Format("{0}: Retrying {1} times.", _flowStructure.Context.LogType, retriedTimes));
 						Thread.Sleep(TimeSpan.FromSeconds(10));
 						continue;
 					}
@@ -90,7 +90,7 @@ namespace LogFlow
 					_currentStatus = LogFlowStatus.Broken;
 
 					Log.Error(ex);
-					Log.Error(string.Format("Shut down broken flow '{0}'.", _flowStructure.Context.LogType));
+					Log.Error(string.Format("{0}: Shut down because broken!", _flowStructure.Context.LogType));
 					break;
 				}
 
@@ -98,7 +98,7 @@ namespace LogFlow
 				{
 					_currentStatus = LogFlowStatus.Running;
 
-					Log.Info(string.Format("Resuming flow '{0}' after {1} times.", _flowStructure.Context.LogType, retriedTimes));
+					Log.Info(string.Format("{0}: Resuming after {1} times.", _flowStructure.Context.LogType, retriedTimes));
 					retriedTimes = 0;
 				}
 			}

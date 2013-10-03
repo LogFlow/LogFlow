@@ -14,22 +14,33 @@ namespace LogFlow.Builtins.Inputs
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
 		private readonly ConcurrentQueue<string> _changedFiles = new ConcurrentQueue<string>();
+		private LineInProcess _lineInProcess;
 		private readonly FileSystemWatcher _watcher;
 
 		private readonly string _path;
 		private readonly Encoding _encoding;
 
 		public FileInput(string path) : this(path, Encoding.UTF8) { }
-		
+
 		public FileInput(string path, Encoding encoding)
 		{
 			_path = path;
 			_encoding = encoding;
 
 			_watcher = new FileSystemWatcher(GetPath(), GetSearchPattern());
-			_watcher.Changed += (sender, args) => _changedFiles.Enqueue(args.FullPath);
-			_watcher.Created += (sender, args) => _changedFiles.Enqueue(args.FullPath);
+			_watcher.Changed += (sender, args) => AddToQueueWithDuplicationCheck(args.FullPath);
+			_watcher.Created += (sender, args) => AddToQueueWithDuplicationCheck(args.FullPath);
 		}
+
+		private void AddToQueueWithDuplicationCheck(string fullPath)
+		{
+			if (!_changedFiles.Contains(fullPath))
+			{
+				Log.Trace(string.Format("{0}: Enqueuing file '{1}' for processing.", LogContext.LogType, fullPath));
+				_changedFiles.Enqueue(fullPath);
+			}
+		}
+
 
 		private string GetPath()
 		{
@@ -44,7 +55,7 @@ namespace LogFlow.Builtins.Inputs
 
 		public void Start()
 		{
-			Log.Trace(string.Format("Starting FileInput: '{0}'", LogContext.LogType));
+			Log.Info(string.Format("{0}: Starting FileInput.", LogContext.LogType));
 
 			AddCurrentFilesToQueue();
 			StartFileSystemWatcher();
@@ -58,22 +69,22 @@ namespace LogFlow.Builtins.Inputs
 		private void StartFileSystemWatcher()
 		{
 			_watcher.EnableRaisingEvents = true;
-			Log.Trace(string.Format("Started FileSystemWatcher for {0}", _path));
+			Log.Info(string.Format("{0}: Started FileSystemWatcher for path {1}", LogContext.LogType, _path));
 		}
 
 		private void StopFileSystemWatcher()
 		{
 			_watcher.EnableRaisingEvents = false;
-			Log.Trace(string.Format("Stopped FileSystemWatcher for {0}", _path));
+			Log.Info(string.Format("{0}: Stopped FileSystemWatcher for path {1}", LogContext.LogType, _path));
 		}
 
 		private void AddCurrentFilesToQueue()
 		{
-			Log.Trace("Adding all current files as changed.");
+			Log.Info(string.Format("{0}: Adding all current files as changed.", LogContext.LogType));
 
 			foreach (var file in GetCurrentFiles())
 			{
-				_changedFiles.Enqueue(file);
+				AddToQueueWithDuplicationCheck(file);
 			}
 		}
 
@@ -87,45 +98,30 @@ namespace LogFlow.Builtins.Inputs
 			StopFileSystemWatcher();
 		}
 
-		private readonly IDictionary<Guid, Tuple<string, long>> _unprocessedLines = new Dictionary<Guid, Tuple<string, long>>();
-
-		private void AddUnprocessedLine(Guid resultId, string filePath, long position)
+		private void SetLineInProcess(Guid resultId, string filePath, long position)
 		{
-			if (!_unprocessedLines.ContainsKey(resultId))
-			{
-				_unprocessedLines.Add(resultId, new Tuple<string, long>(GetPositionKey(filePath), position));
-			}
+			_lineInProcess = new LineInProcess
+				{
+					ResultId = resultId,
+					FilePath = filePath,
+					Position = position
+				};
 		}
-
-		private void StoreProcessedLine(Guid resultId)
-		{
-			if (!_unprocessedLines.ContainsKey(resultId)) return;
-
-			var positionKey = _unprocessedLines[resultId].Item1;
-			var position = _unprocessedLines[resultId].Item2;
-
-			LogContext.Storage.Insert(positionKey, position);
-			_unprocessedLines.Remove(resultId);
-		}
-
-		private readonly Queue<Result> _results = new Queue<Result>();
 
 		public override Result GetLine()
 		{
-			while (!_results.Any())
+			while (true)
 			{
 				string filePath;
-				if (!_changedFiles.TryDequeue(out filePath))
+				while (!_changedFiles.TryPeek(out filePath))
 				{
 					Thread.Sleep(TimeSpan.FromSeconds(1));
-					continue;
 				}
-
-				Log.Trace(string.Format("Starting to read lines in '{0}'", filePath));
 
 				using (var fs = new TextFileLineReader(filePath, _encoding))
 				{
-					fs.Position = LogContext.Storage.Get<long>(GetPositionKey(filePath));
+					var originalPosition = LogContext.Storage.Get<long>(GetPositionKey(filePath));
+					fs.Position = originalPosition;
 
 					while (fs.Position < fs.Length)
 					{
@@ -133,21 +129,59 @@ namespace LogFlow.Builtins.Inputs
 
 						if (string.IsNullOrWhiteSpace(lineResult))
 							continue;
+						
+						var result = new Result { Line = lineResult };
 
-						var result = new Result {Line = lineResult};
+						Log.Trace(string.Format("{0}: ({1}) from '{2}' at byte position '{3}'.", LogContext.LogType, result.Id, filePath, originalPosition));
+						Log.Trace(string.Format("{0}: ({1}) line '{2}' read.", LogContext.LogType, result.Id, lineResult));
 
-						_results.Enqueue(result);
-						AddUnprocessedLine(result.Id, filePath, fs.Position);
+						SetLineInProcess(result.Id, filePath, fs.Position);
+						return result;
 					}
+
+					_changedFiles.TryDequeue(out filePath);
 				}
 			}
-
-			return _results.Dequeue();
 		}
 
 		public override void LineIsProcessed(Guid resultId)
 		{
-			StoreProcessedLine(resultId);
+			Log.Trace(string.Format("{0}: ({1}) is processed.", LogContext.LogType, resultId));
+
+			if (_lineInProcess.ResultId != resultId)
+			{
+				throw new InvalidOperationException("Result ids does not match.");
+			}
+
+			string filePath;
+			_changedFiles.TryPeek(out filePath);
+
+			if (_lineInProcess.FilePath != filePath)
+			{
+				throw new InvalidOperationException("File paths does not match.");
+			}
+
+			var positionKey = GetPositionKey(filePath);
+
+			using (var fs = new TextFileLineReader(filePath, _encoding))
+			{
+				fs.Position = LogContext.Storage.Get<long>(positionKey);
+
+				if (_lineInProcess.Position >= fs.Length)
+				{
+					_changedFiles.TryDequeue(out filePath);
+				}
+			}
+
+			LogContext.Storage.Insert(positionKey, _lineInProcess.Position);
+			_lineInProcess = null;
+		}
+
+		private class LineInProcess
+		{
+			public Guid ResultId;
+			public string FilePath;
+			public long Position;
 		}
 	}
 }
