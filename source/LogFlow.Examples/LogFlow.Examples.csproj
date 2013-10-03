@@ -51,7 +51,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\source\LogFlow\LogFlow.csproj">
+    <ProjectReference Include="..\LogFlow\LogFlow.csproj">
       <Project>{06da5254-e98f-42d7-8f1e-7deef83e99db}</Project>
       <Name>LogFlow</Name>
     </ProjectReference>
