@@ -11,8 +11,9 @@ namespace LogFlow.Specifications.Flows
 	{
 		public LogFlowWithoutName()
 		{
-			CreateProcess("").FromInput(new EmptyInput())
-				.Then(new TestProcessor());
+			CreateProcess().FromInput(new EmptyInput())
+				.Then(new TestProcessor())
+				.ToOutput(new ReportToCurrentResultOutput());
 		}
 	}
 }

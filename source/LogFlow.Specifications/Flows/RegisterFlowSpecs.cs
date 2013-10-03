@@ -1,4 +1,5 @@
-﻿using LogFlow.Specifications.Flows;
+﻿using System.Linq;
+using LogFlow.Specifications.Flows;
 using Machine.Specifications;
 
 
@@ -33,8 +34,11 @@ namespace LogFlow.Specifications
 
         Establish context = () => builder.BuildAndRegisterFlow(new LogFlowWithoutName());
 
-        private It should_not_be_saved
-            = () => builder.Flows.Count.ShouldEqual(0);
+        private It should_be_saved
+            = () => builder.Flows.Count.ShouldEqual(1);
+
+        private It should_be_named_after_the_type
+            = () => builder.Flows.Single().LogType.ShouldEqual("LogFlowWithoutName");
     }
 
     [Subject(typeof(LogFlow))]

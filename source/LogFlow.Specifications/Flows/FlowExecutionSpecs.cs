@@ -1,4 +1,7 @@
-﻿using LogFlow.Specifications.Helpers;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using LogFlow.Specifications.Helpers;
 using Machine.Specifications;
 using Newtonsoft.Json.Linq;
 
@@ -15,6 +18,16 @@ namespace LogFlow.Specifications.Flows
 			var flowToTest = new SimpleLogFlow();
 			builder.BuildAndRegisterFlow(flowToTest);
 			flowToTest.Start();
+
+			var finishedTask = Task.Run(() =>
+			{
+				while (!EmptyInput.IsFinished)
+				{
+					Thread.Sleep(TimeSpan.FromMilliseconds(10));
+				}
+			});
+
+			finishedTask.Wait(TimeSpan.FromMilliseconds(100));
 
 			tags = ReportToCurrentResultOutput.CurrentResult.Json["tags"] as JArray;
 		};

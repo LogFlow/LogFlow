@@ -29,6 +29,11 @@ namespace LogFlow
 			return new LogStructureWithoutInput(_flowStructure);
 		}
 
+		public string LogType
+		{
+			get { return _flowStructure.Context.LogType; }
+		}
+
 		internal LogFlowStructure FlowStructure
 		{
 			get { return _flowStructure; }
