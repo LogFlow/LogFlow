@@ -132,7 +132,7 @@ namespace LogFlow.Builtins.Inputs
 						
 						var result = new Result { Line = lineResult };
 
-						Log.Trace(string.Format("{0}: ({1}) from '{2}' at byte position '{3}'.", LogContext.LogType, result.Id, filePath, originalPosition));
+						Log.Trace(string.Format("{0}: ({1}) from '{2}' at byte position {3}.", LogContext.LogType, result.Id, filePath, originalPosition));
 						Log.Trace(string.Format("{0}: ({1}) line '{2}' read.", LogContext.LogType, result.Id, lineResult));
 
 						SetLineInProcess(result.Id, filePath, fs.Position);
