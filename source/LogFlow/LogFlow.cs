@@ -55,7 +55,6 @@ namespace LogFlow
 		private void ExecuteProcess()
 		{
 			var retriedTimes = 0;
-			Result currentResult = null;
 
 			_currentStatus = LogFlowStatus.Running;
 			Log.Trace(string.Format("Started flow '{0}'.", _flowStructure.Context.LogType));
@@ -64,9 +63,7 @@ namespace LogFlow
 			{
 				try
 				{
-					currentResult = currentResult ?? GetResultFromInput();
-					ExecuteStructure(currentResult);
-					currentResult = null;
+					ExecuteStructure();
 					_tokenSource.Token.ThrowIfCancellationRequested();
 				}
 				catch (OperationCanceledException)
@@ -83,7 +80,8 @@ namespace LogFlow
 						retriedTimes++;
 						_currentStatus = LogFlowStatus.Retrying;
 
-						Log.WarnException(string.Format("Retrying flow '{0}' {1} times.", _flowStructure.Context.LogType, retriedTimes), ex);
+						Log.Warn(ex.Message);
+						Log.Warn(string.Format("Retrying flow '{0}' {1} times.", _flowStructure.Context.LogType, retriedTimes));
 						Thread.Sleep(TimeSpan.FromSeconds(10));
 						continue;
 					}
@@ -91,7 +89,8 @@ namespace LogFlow
 					_flowStructure.StopAll();
 					_currentStatus = LogFlowStatus.Broken;
 
-					Log.ErrorException(string.Format("Shut down broken flow '{0}'.", _flowStructure.Context.LogType), ex);
+					Log.Error(ex);
+					Log.Error(string.Format("Shut down broken flow '{0}'.", _flowStructure.Context.LogType));
 					break;
 				}
 
@@ -105,8 +104,10 @@ namespace LogFlow
 			}
 		}
 
-		private void ExecuteStructure(Result result)
+		private void ExecuteStructure()
 		{
+			var result = GetResultFromInput();
+
 			foreach (var processor in _flowStructure.Processors)
 			{
 				if (result.Canceled)
