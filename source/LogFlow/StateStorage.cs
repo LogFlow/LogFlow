@@ -4,7 +4,7 @@ using BinaryRage;
 
 namespace LogFlow
 {
-	public class StateStorage
+	public class StateStorage : IStateStorage
 	{
 		private readonly string _storageName;
 

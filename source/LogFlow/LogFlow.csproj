@@ -76,6 +76,7 @@
     <Compile Include="Builtins\Outputs\LineToConsoleOutput.cs" />
     <Compile Include="Builtins\Processors\ElasticSearchTimestampToday.cs" />
     <Compile Include="FlowBuilder.cs" />
+    <Compile Include="IStateStorage.cs" />
     <Compile Include="LogContext.cs" />
     <Compile Include="HealthModule.cs" />
     <Compile Include="ILogInput.cs" />

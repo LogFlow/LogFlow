@@ -2,13 +2,15 @@
 {
 	public class LogContext
 	{
-		public LogContext(string logType)
+		public LogContext(string logType) : this(logType, new StateStorage(logType)) { }
+
+		public LogContext(string logType, IStateStorage storage)
 		{
 			LogType = logType;
-			Storage = new StateStorage(logType);
+			Storage = storage;
 		}
 
 		public string LogType { get; private set; }
-		public StateStorage Storage { get; private set; }
+		public IStateStorage Storage { get; private set; }
 	}
 }
