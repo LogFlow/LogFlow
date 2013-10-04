@@ -41,7 +41,6 @@ namespace LogFlow.Builtins.Inputs
 			}
 		}
 
-
 		private string GetPath()
 		{
 			return Path.GetDirectoryName(_path);
@@ -131,6 +130,7 @@ namespace LogFlow.Builtins.Inputs
 							continue;
 						
 						var result = new Result { Line = lineResult };
+						result.MetaData[MetaDataKeys.FilePath] = filePath;
 
 						Log.Trace(string.Format("{0}: ({1}) from '{2}' at byte position {3}.", LogContext.LogType, result.Id, filePath, originalPosition));
 						Log.Trace(string.Format("{0}: ({1}) line '{2}' read.", LogContext.LogType, result.Id, lineResult));
