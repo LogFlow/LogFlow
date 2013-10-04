@@ -10,8 +10,8 @@ namespace LogFlow
 	public class LogFlowEngine
 	{
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-		public static FlowBuilder FlowBuilder = new FlowBuilder();
-		public static NancyHost NancyHost;
+		public static readonly FlowBuilder FlowBuilder = new FlowBuilder();
+		private static NancyHost _nancyHost;
 
 		public bool Start()
 		{
@@ -47,9 +47,13 @@ namespace LogFlow
 				flow.Start();
 			}
 
-			NancyHost = new NancyHost(new Uri("http://localhost:1234"));
-			NancyHost.Start();
-			//Log all running flows.
+			if (Config.EnableNancyHealthModule)
+			{
+				Log.Info("Starting Nancy health module");
+				_nancyHost = new NancyHost(new Uri(Config.NancyHostUrl));
+				_nancyHost.Start();
+				Log.Info("Started Nancy health module on " + Config.NancyHostUrl);
+			}
 
 			return true;
 		}
@@ -62,10 +66,12 @@ namespace LogFlow
 				flow.Stop();
 			}
 
-			if(NancyHost != null)
+			if(_nancyHost != null)
 			{
-				NancyHost.Stop();
-				NancyHost.Dispose();
+				Log.Info("Stopping Nancy health module");
+				_nancyHost.Stop();
+				_nancyHost.Dispose();
+				Log.Info("Stopped Nancy health module");
 			}
 
 			return true;
