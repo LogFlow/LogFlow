@@ -2,13 +2,14 @@
 
 namespace LogFlow.Specifications.Flows
 {
-	public class WorkingLogFlow : LogFlow
+	public class SimpleFlow : Flow
 	{
-		public WorkingLogFlow()
+		public SimpleFlow()
 		{
-			CreateProcess("TestProcessor")
+			CreateProcess("SimpleFlow")
 				.FromInput(new EmptyInput())
-				.Then(new TestProcessor())
+				.Then(new SimpleTagProcessor("Duck"))
+				.Then(new SimpleTagProcessor("Cow"))
 				.ToOutput(new ReportToCurrentResultOutput());
 		}
 	}

@@ -4,9 +4,9 @@ using LogFlow.Builtins.Outputs;
 
 namespace LogFlow.Examples
 {
-	public class FileToConsoleLogFlow : LogFlow
+	public class FileToConsoleFlow : Flow
 	{
-		public FileToConsoleLogFlow()
+		public FileToConsoleFlow()
 		{
 			CreateProcess()
 				.FromInput(new FileInput(Path.Combine(Directory.GetCurrentDirectory(), "*.txt")))

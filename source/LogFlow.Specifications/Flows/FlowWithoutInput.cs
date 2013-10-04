@@ -1,8 +1,8 @@
 ﻿namespace LogFlow.Specifications.Flows
 {
-	public class LogFlowWithoutInput : LogFlow
+	public class FlowWithoutInput : Flow
 	{
-		public LogFlowWithoutInput()
+		public FlowWithoutInput()
 		{
 			CreateProcess("TestProcessor");
 		}

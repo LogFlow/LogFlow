@@ -83,7 +83,7 @@
     <Compile Include="ILogOutput.cs" />
     <Compile Include="ILogProcessor.cs" />
     <Compile Include="INeedContext.cs" />
-    <Compile Include="LogFlow.cs" />
+    <Compile Include="Flow.cs" />
     <Compile Include="LogFlowEngine.cs" />
     <Compile Include="LogFlowStatus.cs" />
     <Compile Include="LogFlowStructure.cs" />

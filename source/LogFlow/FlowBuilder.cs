@@ -9,43 +9,43 @@ namespace LogFlow
 	{
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-		public List<LogFlow> Flows = new List<LogFlow>();
+		public List<Flow> Flows = new List<Flow>();
 
-		public void BuildAndRegisterFlow(LogFlow logFlow)
+		public void BuildAndRegisterFlow(Flow flow)
 		{
-			if(logFlow.FlowStructure.Context == null)
+			if(flow.FlowStructure.Context == null)
 			{
-				Log.Error("No LogFlow has been registered for " + logFlow.GetType().FullName);
+				Log.Error("No Flow has been registered for " + flow.GetType().FullName);
 				return;
 			}
 
-			var flowStructure = logFlow.FlowStructure;
+			var flowStructure = flow.FlowStructure;
 
 			if(string.IsNullOrWhiteSpace(flowStructure.Context.LogType))
 			{
-				Log.Error("No name for LogFlow has been registered for " + logFlow.GetType().FullName + ". A name must be entered for each LogFlow.");
+				Log.Error("No name for Flow has been registered for " + flow.GetType().FullName + ". A name must be entered for each Flow.");
 				return;
 			}
 
 			if(Flows.Any(f => f.FlowStructure.Context.LogType.Equals(flowStructure.Context.LogType, StringComparison.InvariantCultureIgnoreCase)))
 			{
-				Log.Error("There is already a LogFlow registered with the name " + flowStructure.Context.LogType + ". LogFlow names must be unique.");
+				Log.Error("There is already a Flow registered with the name " + flowStructure.Context.LogType + ". Flow names must be unique.");
 				return;
 			}
 
 			if (flowStructure.Input == null)
 			{
-				Log.Error("LogFlow " + flowStructure.Context.LogType + " doesn't have an input.");
+				Log.Error("Flow " + flowStructure.Context.LogType + " doesn't have an input.");
 				return;
 			}
 
 			if (flowStructure.Output == null)
 			{
-				Log.Error("LogFlow " + flowStructure.Context.LogType + " doesn't have an output.");
+				Log.Error("Flow " + flowStructure.Context.LogType + " doesn't have an output.");
 				return;
 			}
 
-			Flows.Add(logFlow);
+			Flows.Add(flow);
 		}
 	}
 }

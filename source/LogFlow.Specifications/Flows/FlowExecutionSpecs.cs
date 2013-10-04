@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace LogFlow.Specifications.Flows
 {
-	[Subject(typeof(LogFlow))]
+	[Subject(typeof(Flow))]
 	public class when_starting_simple_flow
 	{
 		static FlowBuilder builder = new FlowBuilder();
@@ -15,7 +15,7 @@ namespace LogFlow.Specifications.Flows
 
 		Establish context = () =>
 		{
-			var flowToTest = new SimpleLogFlow();
+			var flowToTest = new SimpleFlow();
 			builder.BuildAndRegisterFlow(flowToTest);
 			flowToTest.Start();
 

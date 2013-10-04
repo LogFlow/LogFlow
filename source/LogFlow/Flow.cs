@@ -5,7 +5,7 @@ using NLog;
 
 namespace LogFlow
 {
-	public abstract class LogFlow
+	public abstract class Flow
 	{
 		private const int TimesToRetry = 10;
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger();

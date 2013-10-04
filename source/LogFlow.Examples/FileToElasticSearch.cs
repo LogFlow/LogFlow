@@ -5,7 +5,7 @@ using LogFlow.Builtins.Processors;
 
 namespace LogFlow.Examples
 {
-	public class FileToElasticSearch : LogFlow
+	public class FileToElasticSearch : Flow
 	{
 		public FileToElasticSearch()
 		{
