@@ -11,7 +11,7 @@ namespace LogFlow.Examples
 		{
 			CreateProcess()
 				.FromInput(new FileInput(Path.Combine(Directory.GetCurrentDirectory(), "*.txt")))
-				.Then(new ElasticSearchTimestampToday())
+				.Then(new SetEventTimeStampToNow())
 				.ToOutput(new ElasticSearchOutput(new ElasticSearchConfiguration()));
 		}
 	}

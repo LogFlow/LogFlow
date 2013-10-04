@@ -19,5 +19,6 @@ namespace LogFlow
 		public JObject Json { get; set; }
 		public bool Canceled { get; set; }
 		public Dictionary<string, string> MetaData { get; private set; }
+		public DateTime? EventTimeStamp { get; set; }
 	}
 }

@@ -104,21 +104,21 @@ namespace LogFlow.Builtins.Outputs
 
 		public override void Process(Result result)
 		{
-			var timestampProperty = result.Json[ElasticSearchFields.Timestamp] as JValue;
-			if (timestampProperty == null)
+			if(result.EventTimeStamp == null)
 			{
 				throw new ArgumentNullException(ElasticSearchFields.Timestamp);
 			}
 
-			DateTime timestamp;
-			if (!DateTime.TryParse(timestampProperty.Value.ToString(), out timestamp))
+			var timestampIsoString = result.EventTimeStamp.Value.ToString("o", CultureInfo.InvariantCulture);
+			if(result.Json[ElasticSearchFields.Timestamp] == null)
 			{
-				throw new ArgumentException(string.Format("{0} could not be parsed as a datetime.", timestampProperty.Value), ElasticSearchFields.Timestamp);
+				result.Json.Add(ElasticSearchFields.Timestamp, new JValue(timestampIsoString));
 			}
-
-			timestampProperty.Value = timestamp.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern);
-			result.Json[ElasticSearchFields.Timestamp] = timestampProperty;
-
+			else
+			{
+				result.Json[ElasticSearchFields.Timestamp] = new JValue(timestampIsoString);
+			}
+			
 			var messageProperty = result.Json[ElasticSearchFields.Message] as JValue;
 			if (messageProperty == null || string.IsNullOrWhiteSpace(messageProperty.Value.ToString()))
 			{
@@ -136,7 +136,7 @@ namespace LogFlow.Builtins.Outputs
 				result.Json[ElasticSearchFields.TTL] = new JValue(_configuration.Ttl);
 			}
 
-			IndexLog(result.Json.ToString(Newtonsoft.Json.Formatting.None), timestamp, LogContext.LogType, lineId);
+			IndexLog(result.Json.ToString(Newtonsoft.Json.Formatting.None), result.EventTimeStamp.Value, LogContext.LogType, lineId);
 		}
 	}
 }

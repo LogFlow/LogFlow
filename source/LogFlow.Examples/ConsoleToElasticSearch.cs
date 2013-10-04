@@ -11,7 +11,7 @@ namespace LogFlow.Examples
 		{
 			CreateProcess()
 				.FromInput(new ConsoleInput())
-				.Then(new ElasticSearchTimestampToday())
+				.Then(new SetEventTimeStampToNow())
 				.ToOutput(new ElasticSearchOutput(new ElasticSearchConfiguration()));
 		}
 	}
