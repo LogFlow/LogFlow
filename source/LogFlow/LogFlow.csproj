@@ -89,6 +89,7 @@
     <Compile Include="LogFlowStructure.cs" />
     <Compile Include="LogOutput.cs" />
     <Compile Include="LogProcessor.cs" />
+    <Compile Include="MetaDataKeys.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
