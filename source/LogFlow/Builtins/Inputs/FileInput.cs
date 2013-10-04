@@ -20,14 +20,14 @@ namespace LogFlow.Builtins.Inputs
 		private readonly string _path;
 		private readonly Encoding _encoding;
 
-		public FileInput(string path) : this(path, Encoding.UTF8) { }
+		public FileInput(string path) : this(path, Encoding.UTF8, false) { }
 
-		public FileInput(string path, Encoding encoding)
+		public FileInput(string path, Encoding encoding, bool includeSubDirectories)
 		{
 			_path = path;
 			_encoding = encoding;
 
-			_watcher = new FileSystemWatcher(GetPath(), GetSearchPattern());
+			_watcher = new FileSystemWatcher(GetPath(), GetSearchPattern()) { IncludeSubdirectories = includeSubDirectories };
 			_watcher.Changed += (sender, args) => AddToQueueWithDuplicationCheck(args.FullPath);
 			_watcher.Created += (sender, args) => AddToQueueWithDuplicationCheck(args.FullPath);
 		}
@@ -89,7 +89,8 @@ namespace LogFlow.Builtins.Inputs
 
 		private IEnumerable<string> GetCurrentFiles()
 		{
-			return Directory.GetFiles(GetPath(), GetSearchPattern()).OrderBy(f => new FileInfo(f).LastWriteTime);
+			var searchOption = _watcher.IncludeSubdirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+			return Directory.GetFiles(GetPath(), GetSearchPattern(), searchOption).OrderBy(f => new FileInfo(f).LastWriteTime);
 		}
 
 		public void Stop()
