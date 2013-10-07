@@ -109,7 +109,7 @@ namespace LogFlow.Builtins.Outputs
 				throw new ArgumentNullException(ElasticSearchFields.Timestamp);
 			}
 
-			var timestampIsoString = result.EventTimeStamp.Value.ToString("o", CultureInfo.InvariantCulture);
+			var timestampIsoString = result.EventTimeStamp.Value.ToString(@"yyyy-MM-ddTHH\:mm\:ss.fff", CultureInfo.InvariantCulture);
 			if(result.Json[ElasticSearchFields.Timestamp] == null)
 			{
 				result.Json.Add(ElasticSearchFields.Timestamp, new JValue(timestampIsoString));
