@@ -85,7 +85,7 @@ namespace LogFlow
 						retriedTimes++;
 						_currentStatus = LogFlowStatus.Retrying;
 
-						Log.Warn(string.Format("{0}: {1}", _flowStructure.Context.LogType, ex.Message));
+						Log.Warn(string.Format("{0}: {1}", _flowStructure.Context.LogType, ex));
 						Log.Warn(string.Format("{0}: Retrying {1} times.", _flowStructure.Context.LogType, retriedTimes));
 						Thread.Sleep(TimeSpan.FromSeconds(10));
 						continue;

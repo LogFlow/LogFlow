@@ -30,7 +30,7 @@ namespace LogFlow.Builtins.Inputs
 			if(!File.Exists(filePath))
 				throw new FileNotFoundException("File (" + filePath + ") is not found.");
 
-			_fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+			_fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			_length = _fileStream.Length;
 			_binReader = new BinaryReader(_fileStream, encoding);
 		}
