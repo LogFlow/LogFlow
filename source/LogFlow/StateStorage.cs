@@ -18,14 +18,9 @@ namespace LogFlow
 			_storageName = storageName;
 		}
 
-		private static string GetBaseStoragePath()
-		{
-			return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StateStorage");
-		}
-
 		private string GetDbPath()
 		{
-			return  Path.Combine(GetBaseStoragePath(), _storageName);
+			return  Path.Combine(Config.StoragePath, _storageName);
 		}
 
 		public void Insert<T>(string key, T objectToInsert)
