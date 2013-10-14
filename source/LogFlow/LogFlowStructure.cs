@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LogFlow
 {
@@ -47,7 +48,7 @@ namespace LogFlow
 	{
 		public LogContext Context { get; set; }
 		public ILogInput Input { get; set; }
-		public List<ILogProcessor> Processors = new List<ILogProcessor>();
+		public readonly List<ILogProcessor> Processors = new List<ILogProcessor>();
 		public ILogOutput Output { get; set; }
 
 		private IEnumerable<IStartable> GetAllStartable()
@@ -64,18 +65,12 @@ namespace LogFlow
 
 		public void StartAll()
 		{
-			foreach (var startable in GetAllStartable())
-			{
-				startable.Start();
-			}
+			Task.WaitAll(GetAllStartable().Select(x => Task.Run(() => x.Start())).ToArray());
 		}
 
 		public void StopAll()
 		{
-			foreach (var startable in GetAllStartable())
-			{
-				startable.Stop();
-			}
+			Task.WaitAll(GetAllStartable().Select(x => Task.Run(() => x.Stop())).ToArray());
 		}
 	}
 }
