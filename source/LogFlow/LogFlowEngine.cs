@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using NLog;
 using Nancy.Hosting.Self;
 
@@ -43,10 +44,7 @@ namespace LogFlow
 				}
 			}
 
-			foreach (var flow in FlowBuilder.Flows)
-			{
-				flow.Start();
-			}
+			Task.WaitAll(FlowBuilder.Flows.Select(x => Task.Run(() => x.Start())).ToArray());
 
 			if (Config.EnableNancyHealthModule)
 			{
@@ -61,11 +59,7 @@ namespace LogFlow
 
 		public bool Stop()
 		{
-			//Kill all the things
-			foreach (var flow in FlowBuilder.Flows)
-			{
-				flow.Stop();
-			}
+			Task.WaitAll(FlowBuilder.Flows.Select(x => Task.Run(() => x.Stop())).ToArray());
 
 			if(_nancyHost != null)
 			{
