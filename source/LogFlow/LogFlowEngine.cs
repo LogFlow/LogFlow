@@ -25,6 +25,7 @@ namespace LogFlow
 
 			var flowTypes = allAssemblies
 					   .SelectMany(assembly => assembly.GetTypes())
+					   .Where(type => !type.IsAbstract)
 					   .Where(type => type.IsSubclassOf(typeof(Flow)));
 
 			Log.Trace("Number of flows found: " + flowTypes.Count());
