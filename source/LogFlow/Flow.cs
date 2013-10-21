@@ -12,7 +12,8 @@ namespace LogFlow
 		private readonly LogFlowStructure _flowStructure = new LogFlowStructure();
 		private CancellationTokenSource _tokenSource;
 		private LogFlowStatus _currentStatus = LogFlowStatus.Stopped;
-		
+		private Task _processTask;
+
 		public LogFlowStatus CurrentStatus
 		{
 			get { return _currentStatus; }
@@ -46,7 +47,7 @@ namespace LogFlow
 			Log.Info(string.Format("{0}: Starting.", _flowStructure.Context.LogType));
 			_flowStructure.StartAll(); 
 			_tokenSource = new CancellationTokenSource();
-			Task.Factory.StartNew(ExecuteProcess, _tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+			_processTask = Task.Factory.StartNew(ExecuteProcess, _tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 		}
 
 		public void Stop()
@@ -55,6 +56,11 @@ namespace LogFlow
 
 			Log.Info(string.Format("{0}: Stopping.", _flowStructure.Context.LogType));
 			_tokenSource.Cancel();
+
+			if (_processTask != null)
+			{
+				_processTask.Wait();
+			}
 		}
 
 		private void ExecuteProcess()

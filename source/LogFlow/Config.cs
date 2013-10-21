@@ -1,4 +1,6 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
+using System.IO;
 
 namespace LogFlow
 {
@@ -6,14 +8,21 @@ namespace LogFlow
 	{
 		public static bool EnableNancyHealthModule
 		{
-			get { 
-				return ConfigurationManager.AppSettings["EnableNancyHealthModule"].IsTrue();
-			}
+			get { return ConfigurationManager.AppSettings["EnableNancyHealthModule"].IsTrue(); }
 		}
 
 		public static string NancyHostUrl
 		{
 			get { return ConfigurationManager.AppSettings["NancyHostUrl"] ?? "http://localhost:1337"; }
+		}
+
+		public static string StoragePath
+		{
+			get
+			{
+				return ConfigurationManager.AppSettings["StoragePath"] ??
+				       Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StateStorage");
+			}
 		}
 
 		private static bool IsTrue(this string str)
