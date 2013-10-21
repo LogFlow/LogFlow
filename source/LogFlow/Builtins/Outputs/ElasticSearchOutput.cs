@@ -109,14 +109,14 @@ namespace LogFlow.Builtins.Outputs
 				throw new ArgumentNullException(ElasticSearchFields.Timestamp);
 			}
 
-			var unanimousDateTime = new JValue(result.EventTimeStamp.Value.ToString("yyyy-MM-ddTHH:mm:ss"));
+			var jsonTimeStamp = new JValue(result.EventTimeStamp);
 			if(result.Json[ElasticSearchFields.Timestamp] == null)
 			{
-				result.Json.Add(ElasticSearchFields.Timestamp, unanimousDateTime);
+				result.Json.Add(ElasticSearchFields.Timestamp, jsonTimeStamp);
 			}
 			else
 			{
-				result.Json[ElasticSearchFields.Timestamp] = unanimousDateTime;
+				result.Json[ElasticSearchFields.Timestamp] = jsonTimeStamp;
 			}
 			
 			var messageProperty = result.Json[ElasticSearchFields.Message] as JValue;
