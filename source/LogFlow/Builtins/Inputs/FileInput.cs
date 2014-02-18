@@ -123,6 +123,8 @@ namespace LogFlow.Builtins.Inputs
 					var originalPosition = LogContext.Storage.Get<long>(GetPositionKey(filePath));
 					fs.Position = originalPosition;
 
+					
+
 					while (fs.Position < fs.Length)
 					{
 						var lineResult = fs.ReadLine();

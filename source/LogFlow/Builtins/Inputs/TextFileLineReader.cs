@@ -41,7 +41,7 @@ namespace LogFlow.Builtins.Inputs
 		/// <returns>The next line from the input stream, or null if the end of the input stream is reached</returns>
 		public string ReadLine()
 		{
-			if(_binReader.PeekChar() == -1)
+			if(_binReader.BaseStream.Position == _binReader.BaseStream.Length)
 				return null;
 
 			string line = "";
