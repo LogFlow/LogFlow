@@ -26,7 +26,10 @@ namespace LogFlow
 		public void Insert<T>(string key, T objectToInsert)
 		{
 			DB<T>.Insert(GenerateUniqueKey(key), objectToInsert, GetDbPath());
-			DB<T>.WaitForCompletion();
+			while(DB<T>.Get(key, GetDbPath()) == default(T))
+			{
+				
+			}
 		}
 
 		public T Get<T>(string key)

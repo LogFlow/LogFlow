@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Globalization;
 using NLog;
 using Nest;
 using Newtonsoft.Json.Linq;
