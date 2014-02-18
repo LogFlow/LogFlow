@@ -30,9 +30,12 @@ namespace LogFlow.Builtins.Inputs
 			if(!File.Exists(filePath))
 				throw new FileNotFoundException("File (" + filePath + ") is not found.");
 
+			var safeEncoding = (Encoding)encoding.Clone();
+			safeEncoding.DecoderFallback = new DecoderReplacementFallback("");
+
 			_fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			_length = _fileStream.Length;
-			_binReader = new BinaryReader(_fileStream, encoding);
+			_binReader = new BinaryReader(_fileStream, safeEncoding);
 		}
 
 		/// <summary>
