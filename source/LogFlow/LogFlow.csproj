@@ -72,6 +72,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinaryRageExtensions.cs" />
     <Compile Include="Builtins\Inputs\ConsoleInput.cs" />
     <Compile Include="Builtins\Inputs\FileInput.cs" />
     <Compile Include="Builtins\Inputs\TextFileLineReader.cs" />

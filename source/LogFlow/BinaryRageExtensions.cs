@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BinaryRage;
 
 namespace LogFlow
 {
-	class BinaryRageExtensions
+	public static class BinaryRageExtensions
 	{
+		public static void WaitForCompletion<T>()
+		{
+			DB<T>.Get()
+			
+		}
 	}
 }
