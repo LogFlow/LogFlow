@@ -89,7 +89,7 @@ public class MyLogLineParser : LogProcessor
 Try not to over write the Json property only add to it because erlier steps might have added data to it.
 There is MetaData to help you to transport data in the flow without it saving to the output.
 
-#### Set up debuging
+#### Set up debugging
 * Sucessfully build the project in Debug
 * Project properties > Debug > Start external program > Select logflow.exe in debug folder.
 * Press F5
