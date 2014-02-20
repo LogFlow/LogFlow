@@ -27,15 +27,15 @@ namespace LogFlow.Builtins.Outputs
 		{
 			var indexName = BuildIndexName(timestamp);
 			EnsureIndexExists(indexName);
-
-			var queryString = new NameValueCollection();
-
-			if(!string.IsNullOrWhiteSpace(_configuration.Ttl))
+			
+			var indexResult = _rawClient.IndexPut(indexName, logType, lineId, jsonBody, qs =>
 			{
-				queryString.Add("ttl", _configuration.Ttl);
-			}
-
-			var indexResult = _rawClient.IndexPut(indexName, logType, lineId, jsonBody, queryString);
+				if(!string.IsNullOrWhiteSpace(_configuration.Ttl))
+				{
+					qs.Add("ttl", _configuration.Ttl);
+				}
+				return qs;
+			});
 
 			if (!indexResult.Success)
 			{

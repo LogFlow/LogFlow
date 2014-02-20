@@ -36,7 +36,7 @@
   <ItemGroup>
     <Reference Include="BinaryRage, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\BinaryRage.0.1.2\lib\net40\BinaryRage.dll</HintPath>
+      <HintPath>..\..\libs\BinaryRage\BinaryRage.dll</HintPath>
     </Reference>
     <Reference Include="Nancy, Version=0.22.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -72,7 +72,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinaryRageExtensions.cs" />
     <Compile Include="Builtins\Inputs\ConsoleInput.cs" />
     <Compile Include="Builtins\Inputs\FileInput.cs" />
     <Compile Include="Builtins\Inputs\TextFileLineReader.cs" />
@@ -104,11 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="LogFlow.nuspec" />
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="NLog.xsd">
+    <None Include="LogFlow.nuspec">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />

@@ -2,7 +2,6 @@
 using LogFlow.Specifications.Flows;
 using Machine.Specifications;
 
-
 namespace LogFlow.Specifications
 {
     [Subject(typeof(Flow))]

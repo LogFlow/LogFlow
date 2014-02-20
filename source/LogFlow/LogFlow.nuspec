@@ -2,16 +2,27 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>LogFlow</id>
-		<version>0.1.0</version>
+		<version>0.0.1</version>
 		<authors>Emil Cardell, Roger Wilsson</authors>
 		<owners>Emil Cardell, Roger Wilsson</owners>
-		<licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
-		<projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
+		<licenseUrl>https://github.com/emilcardell/LogFlow/blob/master/LICENSE</licenseUrl>
+		<projectUrl>https://github.com/emilcardell/LogFlow</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<description>Package description</description>
-		<tags>Tag1 Tag2</tags>
+		<description>An simple log flow agent aimed for use with elastic search and Kibana.</description>
+		<tags>Logging</tags>
 		<dependencies>
-			<dependency id="SampleDependency" version="1.0" />
+			<dependency id="Nancy" version="0.22.1" />
+			<dependency id="Nancy.Hosting.Self" version="0.22.1" />
+			<dependency id="NEST" version="0.12.0.0" />
+			<dependency id="Newtonsoft.Json" version="6.0.1" />
+			<dependency id="NLog" version="2.1.0" />
+			<dependency id="Topshelf" version="3.1.3" />
 		</dependencies>
 	</metadata>
+	<files>
+		<file src="..\..\libs\BinaryRage\BinaryRage.dll" target="lib\net40" />
+		<file src="..\..\_release\LogFlow.exe" target="lib\net40" />
+		<file src="..\..\_release\LogFlow.exe.config" target="content" />
+		<file src="..\..\_release\NLog.config" target="content" />		
+	</files>
 </package>
