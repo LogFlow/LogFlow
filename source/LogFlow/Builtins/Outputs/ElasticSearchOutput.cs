@@ -25,10 +25,10 @@ namespace LogFlow.Builtins.Outputs
 
 		private void IndexLog(string jsonBody, DateTime timestamp, string logType, string lineId)
 		{
-			var indexName = BuildIndexName(timestamp);
+			var indexName = BuildIndexName(timestamp).ToLowerInvariant();
 			EnsureIndexExists(indexName);
-			
-			var indexResult = _rawClient.IndexPut(indexName, logType, lineId, jsonBody, qs =>
+
+			var indexResult = _rawClient.IndexPut(lineId, indexName, logType, jsonBody, qs =>
 			{
 				if(!string.IsNullOrWhiteSpace(_configuration.Ttl))
 				{
