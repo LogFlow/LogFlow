@@ -22,26 +22,34 @@ namespace LogFlow
 
 			Log.Trace("Assembly Path:" + path);
 
-			var allAssemblies = Directory.GetFiles(path, "*.dll").Select(Assembly.LoadFile).ToList();
-
-			var flowTypes = allAssemblies
-					   .SelectMany(assembly => assembly.GetTypes())
-					   .Where(type => !type.IsAbstract)
-					   .Where(type => type.IsSubclassOf(typeof(Flow)));
-
-			Log.Trace("Number of flows found: " + flowTypes.Count());
-
-			foreach(var flowType in flowTypes)
+			try
 			{
-				try
+				var allAssemblies = Directory.GetFiles(path, "*.dll").Select(Assembly.LoadFile).ToList();
+
+				var flowTypes = allAssemblies
+						   .SelectMany(assembly => assembly.GetTypes())
+						   .Where(type => !type.IsAbstract)
+						   .Where(type => type.IsSubclassOf(typeof(Flow)));
+
+				Log.Trace("Number of flows found: " + flowTypes.Count());
+
+				foreach(var flowType in flowTypes)
 				{
-					var flow = (Flow)Activator.CreateInstance(flowType);
-					FlowBuilder.BuildAndRegisterFlow(flow);
+					try
+					{
+						var flow = (Flow)Activator.CreateInstance(flowType);
+						FlowBuilder.BuildAndRegisterFlow(flow);
+					}
+					catch(Exception exception)
+					{
+						Log.Error(exception);
+					}
 				}
-				catch(Exception exception)
-				{
-					Log.Error(exception);
-				}
+			}
+			catch(ReflectionTypeLoadException exception)
+			{
+				Log.Error(exception);
+				Log.Error(exception.LoaderExceptions);
 			}
 
 			Task.WaitAll(FlowBuilder.Flows.Select(x => Task.Run(() => x.Start())).ToArray());
