@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Security.Cryptography;
 using NLog;
 using Nest;
 using Newtonsoft.Json.Linq;
@@ -92,11 +93,23 @@ namespace LogFlow.Builtins.Outputs
 				.TypeName("_default_")
 				.TtlField(t => t.SetDisabled(false))
 				.SourceField(s => s.SetCompression())
-				.Properties(descriptor => descriptor
-					.String(m => m.Name(ElasticSearchFields.Source).Index(FieldIndexOption.not_analyzed))
-					.Date(m => m.Name(ElasticSearchFields.Timestamp).Index(NonStringIndexOption.not_analyzed))
-					.String(m => m.Name(ElasticSearchFields.Type).Index(FieldIndexOption.not_analyzed))
-					.String(m => m.Name(ElasticSearchFields.Message).IndexAnalyzer("whitespace"))
+				.Properties(descriptor =>
+				{
+					if(_configuration.Mappings != null)
+					{
+						_configuration.Mappings(descriptor);
+					}
+
+					descriptor
+						.String(m => m.Name(ElasticSearchFields.Source).Index(FieldIndexOption.not_analyzed))
+						.Date(m => m.Name(ElasticSearchFields.Timestamp).Index(NonStringIndexOption.not_analyzed))
+						.String(m => m.Name(ElasticSearchFields.Type).Index(FieldIndexOption.not_analyzed))
+						.String(m => m.Name(ElasticSearchFields.Message).IndexAnalyzer("whitespace"));
+
+					return descriptor;
+				}
+					
+					
 				)
 			);
 		}

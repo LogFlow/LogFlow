@@ -1,4 +1,7 @@
-﻿namespace LogFlow.Builtins.Outputs
+﻿using System;
+using Nest;
+
+namespace LogFlow.Builtins.Outputs
 {
 	public class ElasticSearchConfiguration
 	{
@@ -15,5 +18,6 @@
 		public string Ttl { get; set; }
 		public int ConnectionLimit { get; set; }
 		public string IndexNameFormat { get; set; }
+		public Action<PropertiesDescriptor<dynamic>> Mappings { get; set; }
 	}
 }
