@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Security.Cryptography;
+using Newtonsoft.Json;
 using NLog;
 using Nest;
 using Newtonsoft.Json.Linq;
@@ -20,8 +22,10 @@ namespace LogFlow.Builtins.Outputs
 		{
 			_configuration = configuration;
 			var clientSettings = new ConnectionSettings(new Uri(string.Format("http://{0}:{1}", configuration.Host, configuration.Port)));
+			clientSettings.SetDefaultPropertyNameInferrer(name => name);
 			_rawClient = new RawElasticClient(clientSettings);
 			_client = new ElasticClient(clientSettings);
+			
 		}
 
 		private void IndexLog(string jsonBody, DateTime timestamp, string logType, string lineId)
