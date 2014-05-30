@@ -19,5 +19,12 @@ namespace LogFlow.Builtins.Outputs
 		public int ConnectionLimit { get; set; }
 		public string IndexNameFormat { get; set; }
 		public Action<PropertiesDescriptor<dynamic>> Mappings { get; set; }
+
+		public ConnectionSettings CreateConnectionFromSettings()
+		{
+			var clientSettings = new ConnectionSettings(new Uri(string.Format("http://{0}:{1}", Host, Port)));
+			clientSettings.SetDefaultPropertyNameInferrer(name => name);
+			return clientSettings;
+		}
 	}
 }

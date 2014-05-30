@@ -21,11 +21,16 @@ namespace LogFlow.Builtins.Outputs
 		public ElasticSearchOutput(ElasticSearchConfiguration configuration)
 		{
 			_configuration = configuration;
-			var clientSettings = new ConnectionSettings(new Uri(string.Format("http://{0}:{1}", configuration.Host, configuration.Port)));
-			clientSettings.SetDefaultPropertyNameInferrer(name => name);
+			var clientSettings = configuration.CreateConnectionFromSettings();
 			_rawClient = new RawElasticClient(clientSettings);
 			_client = new ElasticClient(clientSettings);
-			
+		}
+
+		public ElasticSearchOutput(ElasticSearchConfiguration configuration, ConnectionSettings clientSettings)
+		{
+			_configuration = configuration;
+			_rawClient = new RawElasticClient(clientSettings);
+			_client = new ElasticClient(clientSettings);
 		}
 
 		private void IndexLog(string jsonBody, DateTime timestamp, string logType, string lineId)
@@ -106,9 +111,7 @@ namespace LogFlow.Builtins.Outputs
 
 					descriptor
 						.String(m => m.Name(ElasticSearchFields.Source).Index(FieldIndexOption.not_analyzed))
-						.Date(m => m.Name(ElasticSearchFields.Timestamp).Index(NonStringIndexOption.not_analyzed))
-						.String(m => m.Name(ElasticSearchFields.Type).Index(FieldIndexOption.not_analyzed))
-						.String(m => m.Name(ElasticSearchFields.Message).IndexAnalyzer("whitespace"));
+						.Date(m => m.Name(ElasticSearchFields.Timestamp).Index(NonStringIndexOption.not_analyzed).Format("date_time"));
 
 					return descriptor;
 				}
