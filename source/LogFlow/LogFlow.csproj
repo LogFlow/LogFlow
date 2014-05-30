@@ -79,6 +79,12 @@
     <Compile Include="Builtins\Outputs\ElasticSearchFields.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchOutput.cs" />
     <Compile Include="Builtins\Outputs\LineToConsoleOutput.cs" />
+    <Compile Include="Builtins\Processors\IISLog\Constants.cs" />
+    <Compile Include="Builtins\Processors\IISLog\FieldParser.cs" />
+    <Compile Include="Builtins\Processors\IISLog\IISLogProcessor.cs" />
+    <Compile Include="Builtins\Processors\IISLog\LineParser.cs" />
+    <Compile Include="Builtins\Processors\IISLog\LogLine.cs" />
+    <Compile Include="Builtins\Processors\IISLog\LogLineFields.cs" />
     <Compile Include="Builtins\Processors\SetEventTimeStampToNow.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="FlowBuilder.cs" />
