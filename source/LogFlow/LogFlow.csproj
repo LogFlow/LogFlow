@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="Builtins\Inputs\ConsoleInput.cs" />
     <Compile Include="Builtins\Inputs\FileInput.cs" />
+    <Compile Include="Builtins\Inputs\FileInputExtended.cs" />
     <Compile Include="Builtins\Inputs\TextFileLineReader.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchConfiguration.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchFields.cs" />
