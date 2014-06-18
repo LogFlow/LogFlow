@@ -134,7 +134,7 @@ namespace LogFlow
 				_flowStructure.Output.Process(result);
 			}
 
-			_flowStructure.Input.LineIsProcessed(result.Id);
+			_flowStructure.Input.LineIsProcessed(result);
 		}
 
 		private Result GetResultFromInput()

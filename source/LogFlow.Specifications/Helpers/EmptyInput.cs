@@ -11,7 +11,7 @@ namespace LogFlow.Specifications.Helpers
 			return new Result();
 		}
 
-		public override void LineIsProcessed(Guid resultId)
+		public override void LineIsProcessed(Result result)
 		{
 			IsFinished = true;
 		}

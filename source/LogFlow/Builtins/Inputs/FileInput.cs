@@ -12,33 +12,48 @@ namespace LogFlow.Builtins.Inputs
 	public class FileInput : LogInput, IStartable
 	{
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-		private readonly ConcurrentQueue<string> _changedFiles = new ConcurrentQueue<string>();
-		private LineInProcess _lineInProcess;
+		
+		private readonly ConcurrentDictionary<string, bool> _files = new ConcurrentDictionary<string, bool>();
+		private readonly ConcurrentQueue<Result> _unprocessed = new ConcurrentQueue<Result>();
 		private readonly FileSystemWatcher _watcher;
+		private readonly IDictionary<string, long> _positionCache = new Dictionary<string, long>();
 
 		private readonly string _path;
 		private readonly Encoding _encoding;
+		private readonly int _readBatchSize;
+		private int _checkIntervalMiliseconds = 30000;
 
-		public FileInput(string path) : this(path, Encoding.UTF8, false) { }
+		public int CheckIntervalMiliseconds
+		{
+			set
+			{
+				if(value < 100)
+					throw new InvalidDataException("Interval can't be less then 100 miliseconds.");
+				
+				_checkIntervalMiliseconds = value;
+			}
+		}
 
-		public FileInput(string path, Encoding encoding, bool includeSubDirectories)
+		public FileInput(string path) : this(path, Encoding.UTF8, false)
+		{
+		}
+
+		public FileInput(string path, Encoding encoding, bool includeSubDirectories, int readBatchSize = 100, int checkIntervalSeconds = 30)
 		{
 			_path = path;
 			_encoding = encoding;
+			_readBatchSize = readBatchSize;
+			_checkIntervalMiliseconds = checkIntervalSeconds;
 
-			_watcher = new FileSystemWatcher(GetPath(), GetSearchPattern()) { IncludeSubdirectories = includeSubDirectories };
+			_watcher = new FileSystemWatcher(GetPath(), GetSearchPattern()) {IncludeSubdirectories = includeSubDirectories};
 			_watcher.Changed += (sender, args) => AddToQueueWithDuplicationCheck(args.FullPath);
 			_watcher.Created += (sender, args) => AddToQueueWithDuplicationCheck(args.FullPath);
 		}
 
 		private void AddToQueueWithDuplicationCheck(string fullPath)
 		{
-			if (!_changedFiles.Contains(fullPath))
-			{
-				Log.Trace(string.Format("{0}: Enqueuing file '{1}' for processing.", LogContext.LogType, fullPath));
-				_changedFiles.Enqueue(fullPath);
-			}
+			_files.AddOrUpdate(fullPath, true, (key, value) => value);
+			Log.Trace(string.Format("{0}: Enqueuing file '{1}' for processing.", LogContext.LogType, fullPath));
 		}
 
 		private string GetPath()
@@ -59,12 +74,7 @@ namespace LogFlow.Builtins.Inputs
 			AddCurrentFilesToQueue();
 			StartFileSystemWatcher();
 		}
-
-		private static string GetPositionKey(string filePath)
-		{
-			return "position_" + filePath;
-		}
-
+		
 		private void StartFileSystemWatcher()
 		{
 			_watcher.EnableRaisingEvents = true;
@@ -96,34 +106,74 @@ namespace LogFlow.Builtins.Inputs
 		public void Stop()
 		{
 			StopFileSystemWatcher();
-		}
-
-		private void SetLineInProcess(Guid resultId, string filePath, long position)
-		{
-			_lineInProcess = new LineInProcess
-				{
-					ResultId = resultId,
-					FilePath = filePath,
-					Position = position
-				};
+			
+			foreach (var position in _positionCache)
+			{
+				LogContext.Storage.Insert(position.Key, position.Value);
+			}
 		}
 
 		public override Result GetLine()
 		{
 			while (true)
 			{
-				string filePath;
-				while (!_changedFiles.TryPeek(out filePath))
+				Result result;
+				if (_unprocessed.TryDequeue(out result))
+				{
+					return result;
+				}
+
+				while (_files.Count == 0)
 				{
 					Thread.Sleep(TimeSpan.FromSeconds(1));
 				}
 
+				var files = _files.ToList();
+				for (int i = 0; i < files.Count; i++)
+				{
+					var limit = (i + 1) * (_readBatchSize / files.Count);
+					ReadLinesFromFile(files[i].Key, limit);
+				}
+				
+				if (_unprocessed.Count == 0)
+				{
+					Thread.Sleep(_checkIntervalMiliseconds);
+				}
+			}
+		}
+
+
+		private long GetPosition(string filePath)
+		{
+			var key = "position_" + filePath;
+
+			long position;
+			if (!_positionCache.TryGetValue(key, out position))
+			{
+				return LogContext.Storage.Get<long>(key);	
+			}
+			return position;
+		}
+
+		public void SavePosition(string filePath, long pos, bool persist)
+		{
+			var key = "position_" + filePath;
+			_positionCache[key] = pos;
+
+			if (persist)
+			{
+				LogContext.Storage.Insert(key, pos);	
+			}
+		}
+
+		private void ReadLinesFromFile(string filePath, int limit)
+		{
+			try
+			{
 				using (var fs = new TextFileLineReader(filePath, _encoding))
 				{
-					var originalPosition = LogContext.Storage.Get<long>(GetPositionKey(filePath));
+					var originalPosition = GetPosition(filePath);
 					fs.Position = originalPosition;
-
-					
 
 					while (fs.Position < fs.Length)
 					{
@@ -131,60 +181,33 @@ namespace LogFlow.Builtins.Inputs
 
 						if (string.IsNullOrWhiteSpace(lineResult))
 							continue;
-						
-						var result = new Result { Line = lineResult };
+
+						var result = new Result {Line = lineResult};
 						result.MetaData[MetaDataKeys.FilePath] = filePath;
+						result.Position = fs.Position;
 
 						Log.Trace(string.Format("{0}: ({1}) from '{2}' at byte position {3}.", LogContext.LogType, result.Id, filePath, originalPosition));
 						Log.Trace(string.Format("{0}: ({1}) line '{2}' read.", LogContext.LogType, result.Id, lineResult));
 
-						SetLineInProcess(result.Id, filePath, fs.Position);
-						return result;
+						_unprocessed.Enqueue(result);
+
+						if (_unprocessed.Count >= limit)
+						{
+							break;
+						}
 					}
-
-					_changedFiles.TryDequeue(out filePath);
 				}
+			}
+			catch (FileNotFoundException)
+			{
+				bool tmp;
+				_files.TryRemove(filePath, out tmp);
 			}
 		}
 
-		public override void LineIsProcessed(Guid resultId)
+		public override void LineIsProcessed(Result result)
 		{
-			Log.Trace(string.Format("{0}: ({1}) is processed.", LogContext.LogType, resultId));
-
-			if (_lineInProcess.ResultId != resultId)
-			{
-				throw new InvalidOperationException("Result ids does not match.");
-			}
-
-			string filePath;
-			_changedFiles.TryPeek(out filePath);
-
-			if (_lineInProcess.FilePath != filePath)
-			{
-				throw new InvalidOperationException("File paths does not match.");
-			}
-
-			var positionKey = GetPositionKey(filePath);
-
-			using (var fs = new TextFileLineReader(filePath, _encoding))
-			{
-				fs.Position = LogContext.Storage.Get<long>(positionKey);
-
-				if (_lineInProcess.Position >= fs.Length)
-				{
-					_changedFiles.TryDequeue(out filePath);
-				}
-			}
-
-			LogContext.Storage.Insert(positionKey, _lineInProcess.Position);
-			_lineInProcess = null;
-		}
-
-		private class LineInProcess
-		{
-			public Guid ResultId;
-			public string FilePath;
-			public long Position;
+			SavePosition(result.MetaData[MetaDataKeys.FilePath], result.Position, persist: false);
 		}
 	}
 }

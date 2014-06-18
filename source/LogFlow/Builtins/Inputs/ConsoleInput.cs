@@ -26,14 +26,14 @@ namespace LogFlow.Builtins.Inputs
 			return result;
 		}
 
-		public override void LineIsProcessed(Guid resultId)
+		public override void LineIsProcessed(Result result)
 		{
 			if (_unprocessed == null)
 			{
 				return;
 			}
 
-			if (_unprocessed.Item1 != resultId)
+			if (_unprocessed.Item1 != result.Id)
 			{
 				throw new InvalidOperationException("Wrong id dude!");
 			}

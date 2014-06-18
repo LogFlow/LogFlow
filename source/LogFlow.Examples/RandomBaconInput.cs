@@ -29,7 +29,7 @@ namespace LogFlow.Examples
 			return result;
 		}
 
-		public override void LineIsProcessed(Guid resultId)
+		public override void LineIsProcessed(Result result)
 		{
 		}
 	}

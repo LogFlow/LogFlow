@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace LogFlow
+﻿namespace LogFlow
 {
 	public interface ILogInput : INeedContext
 	{
 		Result GetLine();
-		void LineIsProcessed(Guid resultId);
+		void LineIsProcessed(Result result);
 	}
 
 	public interface IStartable
@@ -23,6 +21,6 @@ namespace LogFlow
 		}
 
 		public abstract Result GetLine();
-		public abstract void LineIsProcessed(Guid resultId);
+		public abstract void LineIsProcessed(Result result);
 	}
 }
