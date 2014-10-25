@@ -8,7 +8,7 @@ namespace LogFlow.Specifications.Helpers
 
 		public override Result GetLine()
 		{
-			return new Result();
+			return new Result(LogContext);
 		}
 
 		public override void LineIsProcessed(Result result)

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Newtonsoft.Json.Linq;
 using NLog;
 
 namespace LogFlow.Builtins.Inputs
@@ -182,7 +183,7 @@ namespace LogFlow.Builtins.Inputs
 						if (string.IsNullOrWhiteSpace(lineResult))
 							continue;
 
-						var result = new Result {Line = lineResult};
+						var result = new Result(LogContext) {Line = lineResult};
 						result.MetaData[MetaDataKeys.FilePath] = filePath;
 						result.Position = fs.Position;
 

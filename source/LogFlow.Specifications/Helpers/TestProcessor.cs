@@ -4,7 +4,7 @@
 	{
 		public override Result Process(Result result)
 		{
-			return new Result();
+			return new Result(LogContext);
 		}
 	}
 }

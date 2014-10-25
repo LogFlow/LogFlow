@@ -6,12 +6,16 @@ namespace LogFlow
 {
 	public class Result
 	{
-		public Result()
+		public Result(LogContext logContext)
 		{
 			Id = Guid.NewGuid();
 			Json = new JObject();
+			Json.Add(JSonKeys.LogType, logContext.LogType);
+			Json.Add(JSonKeys.MachineName, System.Environment.MachineName);
+
 			Canceled = false;
 			MetaData = new Dictionary<string, string>();
+
 		}
 
 		public Guid Id { get; private set; }

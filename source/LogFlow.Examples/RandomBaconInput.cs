@@ -22,7 +22,7 @@ namespace LogFlow.Examples
 
 		public override Result GetLine()
 		{
-			var result = new Result();
+			var result = new Result(LogContext);
 			result.Line = _randomBacon[new Random().Next(_randomBacon.Count)];
 			result.EventTimeStamp = DateTime.UtcNow;
 			result.Json = JObject.Parse("{ Message: \"" + result.Line + "\" } ");

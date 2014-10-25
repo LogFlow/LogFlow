@@ -8,7 +8,7 @@ namespace LogFlow.Builtins.Inputs
 
 		public override Result GetLine()
 		{
-			var result = new Result();
+			var result = new Result(LogContext);
 
 			if (_unprocessed != null)
 			{

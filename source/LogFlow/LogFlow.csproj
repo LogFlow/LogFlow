@@ -38,14 +38,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\libs\BinaryRage\BinaryRage.dll</HintPath>
     </Reference>
-    <Reference Include="Nancy, Version=0.22.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Nancy.0.22.2\lib\net40\Nancy.dll</HintPath>
-    </Reference>
-    <Reference Include="Nancy.Hosting.Self, Version=0.22.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Nancy.Hosting.Self.0.22.2\lib\net40\Nancy.Hosting.Self.dll</HintPath>
-    </Reference>
     <Reference Include="Nest, Version=0.12.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NEST.0.12.0.0\lib\NET4\Nest.dll</HintPath>
@@ -89,8 +81,8 @@
     <Compile Include="Config.cs" />
     <Compile Include="FlowBuilder.cs" />
     <Compile Include="IStateStorage.cs" />
+    <Compile Include="JSonKeys.cs" />
     <Compile Include="LogContext.cs" />
-    <Compile Include="HealthModule.cs" />
     <Compile Include="ILogInput.cs" />
     <Compile Include="ILogOutput.cs" />
     <Compile Include="ILogProcessor.cs" />
