@@ -79,7 +79,7 @@ public class MyLogLineParser : LogProcessor
 
             result.EventTimeStamp = eventTimeStamp;
             result.Json.Add("LogLevel", new JValue(logLevel));
-            result.Json.Add("Message", new JValue(logLevel));
+            result.Json.Add("Message", new JValue(message));
 
             return result;
         }
