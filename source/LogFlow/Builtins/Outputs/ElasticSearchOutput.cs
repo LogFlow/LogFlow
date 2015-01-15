@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.IO;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
 using NLog;
@@ -17,6 +18,7 @@ namespace LogFlow.Builtins.Outputs
 		private readonly HashSet<string> _indexNames = new HashSet<string>();
 		private readonly ElasticClient _client;
 		private readonly RawElasticClient _rawClient;
+		private readonly JsonSerializer _serializer;
 
 		public ElasticSearchOutput(ElasticSearchConfiguration configuration)
 		{
@@ -24,6 +26,10 @@ namespace LogFlow.Builtins.Outputs
 			var clientSettings = configuration.CreateConnectionFromSettings();
 			_rawClient = new RawElasticClient(clientSettings);
 			_client = new ElasticClient(clientSettings);
+
+			_serializer = new JsonSerializer();
+			_serializer.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+			_serializer.DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
 		}
 
 		public ElasticSearchOutput(ElasticSearchConfiguration configuration, ConnectionSettings clientSettings)
@@ -31,6 +37,9 @@ namespace LogFlow.Builtins.Outputs
 			_configuration = configuration;
 			_rawClient = new RawElasticClient(clientSettings);
 			_client = new ElasticClient(clientSettings);
+			_serializer = new JsonSerializer();
+			_serializer.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+			_serializer.DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK";
 		}
 
 		private void IndexLog(string jsonBody, DateTime timestamp, string logType, string lineId)
@@ -154,8 +163,13 @@ namespace LogFlow.Builtins.Outputs
 			{
 				result.Json[ElasticSearchFields.TTL] = new JValue(_configuration.Ttl);
 			}
-
-			IndexLog(result.Json.ToString(Newtonsoft.Json.Formatting.None), result.EventTimeStamp.Value, LogContext.LogType, lineId);
+			string json;
+			using (var writer = new StringWriter())
+			{
+				_serializer.Serialize(writer, result.Json);
+				json = writer.ToString();
+			}
+			IndexLog(json, result.EventTimeStamp.Value, LogContext.LogType, lineId);
 		}
 	}
 }
