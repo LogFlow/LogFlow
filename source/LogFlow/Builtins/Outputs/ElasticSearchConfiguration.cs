@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Nest;
 
 namespace LogFlow.Builtins.Outputs
@@ -11,6 +12,15 @@ namespace LogFlow.Builtins.Outputs
 			Port = 9200;
 			IndexNameFormat = @"\l\o\g\f\l\o\w\-yyyyMM";
 			ConnectionLimit = 5;
+		    MappingProperties = new Dictionary<PropertyNameMarker, IElasticType>
+		    {
+		        {
+		            ElasticSearchFields.Source, new StringMapping() {Index = FieldIndexOption.NotAnalyzed}
+		        },
+		        {
+		            ElasticSearchFields.Timestamp, new DateMapping() {Format = "date_time", Index = NonStringIndexOption.NotAnalyzed}
+		        }
+		    };
 		}
 
 		public string Host { get; set; }
@@ -18,7 +28,7 @@ namespace LogFlow.Builtins.Outputs
 		public string Ttl { get; set; }
 		public int ConnectionLimit { get; set; }
 		public string IndexNameFormat { get; set; }
-		public Action<PropertiesDescriptor<dynamic>> Mappings { get; set; }
+		public Dictionary<PropertyNameMarker, IElasticType> MappingProperties { get; set; }
 
 		public ConnectionSettings CreateConnectionFromSettings()
 		{

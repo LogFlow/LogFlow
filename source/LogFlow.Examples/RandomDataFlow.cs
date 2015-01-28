@@ -1,6 +1,4 @@
 ﻿using LogFlow.Builtins.Outputs;
-using LogFlow.Builtins.Processors;
-using Nest;
 
 namespace LogFlow.Examples
 {
@@ -12,10 +10,7 @@ namespace LogFlow.Examples
 			elasticConfiguration.Host = "localhost";
 			elasticConfiguration.Port = 9200;
 			elasticConfiguration.IndexNameFormat = @"\b\a\c\o\n\l\o\g\-yyyyMMdd";
-			elasticConfiguration.Mappings = mappings =>
-			{
-				mappings.String(m => m.Name("Message").Index(FieldIndexOption.not_analyzed));
-			};
+			
 
 			CreateProcess().FromInput(new RandomBaconInput())
 				.ToOutput(new ElasticSearchOutput(elasticConfiguration));

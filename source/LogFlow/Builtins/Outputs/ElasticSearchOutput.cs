@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Globalization;
 using System.IO;
-using System.Security.Cryptography;
 using Newtonsoft.Json;
 using NLog;
 using Nest;
@@ -17,14 +14,12 @@ namespace LogFlow.Builtins.Outputs
 		private readonly ElasticSearchConfiguration _configuration;
 		private readonly HashSet<string> _indexNames = new HashSet<string>();
 		private readonly ElasticClient _client;
-		private readonly RawElasticClient _rawClient;
 		private readonly JsonSerializer _serializer;
 
 		public ElasticSearchOutput(ElasticSearchConfiguration configuration)
 		{
 			_configuration = configuration;
 			var clientSettings = configuration.CreateConnectionFromSettings();
-			_rawClient = new RawElasticClient(clientSettings);
 			_client = new ElasticClient(clientSettings);
 
 			_serializer = new JsonSerializer();
@@ -35,7 +30,6 @@ namespace LogFlow.Builtins.Outputs
 		public ElasticSearchOutput(ElasticSearchConfiguration configuration, ConnectionSettings clientSettings)
 		{
 			_configuration = configuration;
-			_rawClient = new RawElasticClient(clientSettings);
 			_client = new ElasticClient(clientSettings);
 			_serializer = new JsonSerializer();
 			_serializer.DateFormatHandling = DateFormatHandling.IsoDateFormat;
@@ -47,21 +41,14 @@ namespace LogFlow.Builtins.Outputs
 			var indexName = BuildIndexName(timestamp).ToLowerInvariant();
 			EnsureIndexExists(indexName);
 
-			var indexResult = _rawClient.IndexPut(lineId, indexName, logType, jsonBody, qs =>
-			{
-				if(!string.IsNullOrWhiteSpace(_configuration.Ttl))
-				{
-					qs.Add("ttl", _configuration.Ttl);
-				}
-				return qs;
-			});
+            var indexResult = _client.Raw.IndexPut(indexName, logType, lineId, jsonBody);
 
 			if (!indexResult.Success)
 			{
-				throw new ApplicationException(string.Format("Failed to index: '{0}'. Result: '{1}'.", jsonBody, indexResult.Result));
+				throw new ApplicationException(string.Format("Failed to index: '{0}'. Response: '{1}'.", jsonBody, indexResult.ResponseRaw));
 			}
 
-			Log.Trace(string.Format("{0}: ({1}) Indexed successfully.", LogContext.LogType, lineId));
+			Log.Trace("{0}: ({1}) Indexed successfully.", LogContext.LogType, lineId);
 		}
 
 		private string BuildIndexName(DateTime timestamp)
@@ -84,50 +71,48 @@ namespace LogFlow.Builtins.Outputs
 			if(_client.IndexExists(indexName).Exists)
 				return;
 
-			var indexSettings = new IndexSettings
-				{
-					{"index.store.compress.stored", true},
-					{"index.store.compress.tv", true},
-					{"index.query.default_field", ElasticSearchFields.Message}
-				};
 
-			IIndicesOperationResponse result = _client.CreateIndex(indexName, indexSettings);
+		    var createIndexRequest = new CreateIndexRequest(indexName)
+		    {
+		        IndexSettings = new IndexSettings()
+		        {
+		            Settings =
+		            {
+		                {"index.store.compress.stored", true},
+		                {"index.store.compress.tv", true},
+		                {"index.query.default_field", ElasticSearchFields.Message}
+		            }
+		        }
+		    };
+
+            IIndicesOperationResponse result = _client.CreateIndex(createIndexRequest);
 
 			CreateMappings(indexName);
 
-			if (!result.OK)
+			if (!result.ConnectionStatus.Success)
 			{
-				throw new ApplicationException(string.Format("Failed to create index: '{0}'. Result: '{1}'", indexName, result.ConnectionStatus.Result));
+				throw new ApplicationException(string.Format("Failed to create index: '{0}'. Result: '{1}'", indexName, result.ConnectionStatus.ResponseRaw));
 			}
 
-			Log.Trace(string.Format("{0}: Index '{1}' i successfully created.", LogContext.LogType, indexName));
+			Log.Trace("{0}: Index '{1}' i successfully created.", LogContext.LogType, indexName);
 		}
 
 		private void CreateMappings(string indexName)
 		{
-			_client.MapFluent(map => map
-				.IndexName(indexName)
-				.DisableAllField()
-				.TypeName("_default_")
-				.TtlField(t => t.SetDisabled(false))
-				.SourceField(s => s.SetCompression())
-				.Properties(descriptor =>
-				{
-					if(_configuration.Mappings != null)
-					{
-						_configuration.Mappings(descriptor);
-					}
+            var indexDefinition = new RootObjectMapping
+            {
+                Properties = _configuration.MappingProperties,
+                Name = indexName,
+                SourceFieldMappingDescriptor = new SourceFieldMapping() {Compress = true},
+                TtlFieldMappingDescriptor = new TtlFieldMapping() {Enabled = true, Default = _configuration.Ttl}
+            };
 
-					descriptor
-						.String(m => m.Name(ElasticSearchFields.Source).Index(FieldIndexOption.not_analyzed))
-						.Date(m => m.Name(ElasticSearchFields.Timestamp).Index(NonStringIndexOption.not_analyzed).Format("date_time"));
+            var result = _client.Map<object>(x => x.InitializeUsing(indexDefinition).Type("_default_"));
 
-					return descriptor;
-				}
-					
-					
-				)
-			);
+            if (!result.ConnectionStatus.Success)
+            {
+                throw new ApplicationException(string.Format("Failed to update mapping for index: '{0}'. Result: '{1}'", indexName, result.ConnectionStatus.ResponseRaw));
+            }
 		}
 
 		public override void Process(Result result)
