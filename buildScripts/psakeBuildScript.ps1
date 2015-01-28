@@ -8,25 +8,15 @@ Properties {
   $nuget_spec = "$src_dir\LogFlow\LogFlow.nuspec"
 }
 
-
-
 FormatTaskName {
    param($taskName)
    $s="$taskName "
    write-host ($s + ("-"* (70-$s.Length))) -foregroundcolor Cyan
 }
 
-Task Deploy -Depends Release, DeployNugetPackageToDev
-
-Task default -Depends Release
-
-Task Build -Depends Compile
+Task default -Depends nuget
 
 Task nuget -Depends CompileNuget, CreateNugetPackage
-
-Task Compile {
-  Exec { msbuild $sln_path /p:Configuration=$Configuration /v:quiet }  
-}
 
 Task CompileNuget {
   Exec { msbuild $sln_path /p:Configuration=$Configuration /v:quiet /p:OutDir=$release_dir } 
