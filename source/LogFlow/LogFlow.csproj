@@ -72,6 +72,7 @@
     <Compile Include="Builtins\Outputs\LineToConsoleOutput.cs" />
     <Compile Include="Builtins\Processors\IISLog\Constants.cs" />
     <Compile Include="Builtins\Processors\IISLog\FieldParser.cs" />
+    <Compile Include="Builtins\Processors\IISLog\FieldToJToken.cs" />
     <Compile Include="Builtins\Processors\IISLog\IISLogProcessor.cs" />
     <Compile Include="Builtins\Processors\IISLog\LineParser.cs" />
     <Compile Include="Builtins\Processors\IISLog\LogLine.cs" />

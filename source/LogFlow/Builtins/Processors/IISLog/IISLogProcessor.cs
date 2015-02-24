@@ -6,6 +6,7 @@ namespace LogFlow.Builtins.Processors.IISLog
 	public class IISLogProcessor : LogProcessor
 	{
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
 		public override Result Process(Result result)
 		{
 			if(result.Line.StartsWith("#"))
@@ -27,7 +28,8 @@ namespace LogFlow.Builtins.Processors.IISLog
 
 				foreach(var field in parsedLine.Fields)
 				{
-					result.Json.Add(field.Key, field.Value);
+				    var token = FieldToJToken.Parse(field);
+					result.Json.Add(field.Key, token);
 				}
 
 				return result;
@@ -40,7 +42,6 @@ namespace LogFlow.Builtins.Processors.IISLog
 			}
 			
 		}
-
 
 		private LogLine ParseLine(Result result)
 		{
