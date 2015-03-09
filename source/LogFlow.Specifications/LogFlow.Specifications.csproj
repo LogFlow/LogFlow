@@ -63,6 +63,7 @@
     <Compile Include="Flows\SimpleTagProcessor.cs" />
     <Compile Include="Flows\WorkingFlow.cs" />
     <Compile Include="Helpers\ReportToCurrentResultOutput.cs" />
+    <Compile Include="Processors\IISLogProcessorSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\EmptyInput.cs" />
     <Compile Include="Helpers\TestProcessor.cs" />
