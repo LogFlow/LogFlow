@@ -11,7 +11,6 @@ namespace LogFlow.Builtins.Inputs
 		FileStream _fileStream = null;
 		BinaryReader _binReader = null;
 		StreamReader _streamReader = null;
-		List<string> _lines = null;
 		long _length = -1;
 
 		/// <summary>
@@ -102,17 +101,6 @@ namespace LogFlow.Builtins.Inputs
 		}
 
 		/// <summary>
-		/// Gets the lines after reading.
-		/// </summary>
-		public List<string> Lines
-		{
-			get
-			{
-				return _lines;
-			}
-		}
-
-		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		public void Dispose()
@@ -130,10 +118,6 @@ namespace LogFlow.Builtins.Inputs
 				_fileStream.Dispose();
 			}
 		}
-
-		~TextFileLineReader()
-		{
-			this.Dispose();
-		}
+		
 	}
 }
