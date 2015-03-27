@@ -39,12 +39,12 @@ namespace LogFlow.Builtins.Inputs
 		{
 		}
 
-		public FileInput(string path, Encoding encoding, bool includeSubDirectories, int readBatchSize = 100, int checkIntervalSeconds = 30)
+		public FileInput(string path, Encoding encoding, bool includeSubDirectories, int readBatchSize = 100, int checkIntervalMilliseconds = 100)
 		{
 			_path = path;
 			_encoding = encoding;
 			_readBatchSize = readBatchSize;
-			_checkIntervalMiliseconds = checkIntervalSeconds;
+			_checkIntervalMiliseconds = checkIntervalMilliseconds;
 
 			_watcher = new FileSystemWatcher(GetPath(), GetSearchPattern()) {IncludeSubdirectories = includeSubDirectories};
 			_watcher.Changed += (sender, args) => AddToQueueWithDuplicationCheck(args.FullPath);
