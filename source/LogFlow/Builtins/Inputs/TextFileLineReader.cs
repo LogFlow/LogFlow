@@ -15,13 +15,13 @@ namespace LogFlow.Builtins.Inputs
 		long _length = -1;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="TextFileReader"/> class with default encoding (UTF8).
+		/// Initializes a new instance of the <see cref="TextFileLineReader"/> class with default encoding (UTF8).
 		/// </summary>
 		/// <param name="filePath">The path to text file.</param>
 		public TextFileLineReader(string filePath) : this(filePath, Encoding.UTF8) { }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="TextFileReader"/> class.
+		/// Initializes a new instance of the <see cref="TextFileLineReader"/> class.
 		/// </summary>
 		/// <param name="filePath">The path to text file.</param>
 		/// <param name="encoding">The encoding of text file.</param>
