@@ -2,11 +2,12 @@
 
 namespace LogFlow.Builtins.Outputs
 {
-	public class LineToConsoleOutput : LogOutput
+	public class LineToConsoleOutput : LogProcessor
 	{
-		public override void Process(Result result)
+		public override Result Process(Result result)
 		{
 			Console.WriteLine(result.Line);
+			return result;
 		}
 	}
 }

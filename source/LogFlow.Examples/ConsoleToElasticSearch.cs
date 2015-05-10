@@ -12,7 +12,7 @@ namespace LogFlow.Examples
 			CreateProcess()
 				.FromInput(new ConsoleInput())
 				.Then(new SetEventTimeStampToNow())
-				.ToOutput(new ElasticSearchOutput(new ElasticSearchConfiguration()));
+				.Then(new ElasticSearchOutput(new ElasticSearchConfiguration()));
 		}
 	}
 }

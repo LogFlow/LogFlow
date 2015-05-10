@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace LogFlow
 {
@@ -37,6 +38,7 @@ namespace LogFlow
 			return new LogStructureWithInput(_flowStructure);
 		}
 
+		[Obsolete("Use then method")]
 		public void ToOutput(ILogOutput output)
 		{
 			output.SetContext(_flowStructure.Context);

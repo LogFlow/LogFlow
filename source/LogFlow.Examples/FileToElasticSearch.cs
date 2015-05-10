@@ -12,7 +12,7 @@ namespace LogFlow.Examples
 			CreateProcess()
 				.FromInput(new FileInput(Path.Combine(Directory.GetCurrentDirectory(), "*.txt")))
 				.Then(new SetEventTimeStampToNow())
-				.ToOutput(new ElasticSearchOutput(new ElasticSearchConfiguration()));
+				.Then(new ElasticSearchOutput(new ElasticSearchConfiguration()));
 		}
 	}
 }

@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace LogFlow.Builtins.Outputs
 {
-	public class ElasticSearchOutput : LogOutput
+	public class ElasticSearchOutput : LogProcessor
 	{
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 		private readonly ElasticSearchConfiguration _configuration;
@@ -115,7 +115,7 @@ namespace LogFlow.Builtins.Outputs
             }
 		}
 
-		public override void Process(Result result)
+		public override Result Process(Result result)
 		{
 			if(result.EventTimeStamp == null)
 			{
@@ -155,6 +155,7 @@ namespace LogFlow.Builtins.Outputs
 				json = writer.ToString();
 			}
 			IndexLog(json, result.EventTimeStamp.Value, LogContext.LogType, lineId);
+			return result;
 		}
 	}
 }

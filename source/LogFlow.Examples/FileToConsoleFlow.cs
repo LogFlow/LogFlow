@@ -10,7 +10,7 @@ namespace LogFlow.Examples
 		{
 			CreateProcess()
 				.FromInput(new FileInput(Path.Combine(Directory.GetCurrentDirectory(), "*.txt")))
-				.ToOutput(new LineToConsoleOutput());
+				.Then(new LineToConsoleOutput());
 		}
 	}
 }

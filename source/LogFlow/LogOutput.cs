@@ -1,5 +1,8 @@
-﻿namespace LogFlow
+﻿using System;
+
+namespace LogFlow
 {
+	[Obsolete("Use LogProcessor")]
 	public abstract class LogOutput : ILogOutput
 	{
 		protected LogContext LogContext { get; private set; }

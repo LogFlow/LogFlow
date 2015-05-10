@@ -13,7 +13,7 @@ namespace LogFlow.Examples
 			
 
 			CreateProcess().FromInput(new RandomBaconInput())
-				.ToOutput(new ElasticSearchOutput(elasticConfiguration));
+				.Then(new ElasticSearchOutput(elasticConfiguration));
 		}
 	}
 }
