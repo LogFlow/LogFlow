@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>LogFlow</id>
-		<version>0.0.5.0-alpha3</version>
+		<version>0.0.5.0-alpha4</version>
 		<authors>Emil Cardell, Roger Wilsson</authors>
 		<owners>Emil Cardell, Roger Wilsson</owners>
 		<licenseUrl>https://github.com/emilcardell/LogFlow/blob/master/LICENSE</licenseUrl>
