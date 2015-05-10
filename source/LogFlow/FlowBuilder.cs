@@ -39,12 +39,6 @@ namespace LogFlow
 				return;
 			}
 
-			if (flowStructure.Output == null)
-			{
-				Log.Error("Flow " + flowStructure.Context.LogType + " doesn't have an output.");
-				return;
-			}
-
 			Flows.Add(flow);
 		}
 	}
