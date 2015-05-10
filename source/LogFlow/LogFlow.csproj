@@ -79,6 +79,11 @@
     <Compile Include="Builtins\Processors\IISLog\LogLineFields.cs" />
     <Compile Include="Builtins\Processors\SetEventTimeStampToNow.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="EncodingDetection\DetectedEncoding.cs" />
+    <Compile Include="EncodingDetection\DetectionResult.cs" />
+    <Compile Include="EncodingDetection\EncodingDetector.cs" />
+    <Compile Include="EncodingDetection\IEncodingDetector.cs" />
+    <Compile Include="EncodingDetection\NoEncodingDetector.cs" />
     <Compile Include="FlowBuilder.cs" />
     <Compile Include="JSonKeys.cs" />
     <Compile Include="LogContext.cs" />

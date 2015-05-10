@@ -29,7 +29,7 @@ namespace LogFlow.Builtins.Inputs
 			set
 			{
 				if(value < 100)
-					throw new InvalidDataException("Interval can't be less then 100 miliseconds.");
+					throw new InvalidDataException("Interval can't be less than 100 milliseconds.");
 				
 				_checkIntervalMiliseconds = value;
 			}
