@@ -19,3 +19,6 @@ _ReSharper*
 # NuGet
 packages
 *.nupkg
+*.userprefs
+.vs/
+
