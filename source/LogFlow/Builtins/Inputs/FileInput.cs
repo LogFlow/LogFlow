@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using NLog;
-using LogFlow.Builtins.Components;
 
 namespace LogFlow.Builtins.Inputs
 {
@@ -19,7 +18,7 @@ namespace LogFlow.Builtins.Inputs
 		private readonly ConcurrentQueue<Result> _unprocessed = new ConcurrentQueue<Result>();
 		private readonly FileSystemWatcher _watcher;
 		private readonly IDictionary<string, long> _positionCache = new Dictionary<string, long>();
-        private readonly SplitIntoLines _splitIntoLines = new SplitIntoLines(); 
+
 		private readonly string _path;
 		private readonly Encoding _encoding;
 		private readonly int _readBatchSize;
@@ -172,20 +171,24 @@ namespace LogFlow.Builtins.Inputs
 		{
 			try
 			{
-                var originalPosition = GetPosition(filePath);
-                using (var fs = Streams.OpenFile(filePath, originalPosition))
-                using (var bufferedStream = new BufferedStream(fs))
-				using (var reader = Streams.GetStreamReaderWithFallback(bufferedStream, _encoding))
+				using (var fs = new TextFileLineReader(filePath, _encoding))
 				{
-					while (!EndOfFile(fs))
+					var originalPosition = GetPosition(filePath);
+					fs.Position = originalPosition;
+
+					while (fs.Position < fs.Length)
 					{
-						var line = _splitIntoLines.ReadLine(reader);
-						var result = new Result(LogContext) { Line = line };
+						var lineResult = fs.ReadLine();
+
+						if (string.IsNullOrWhiteSpace(lineResult))
+							continue;
+
+						var result = new Result(LogContext) {Line = lineResult};
 						result.MetaData[MetaDataKeys.FilePath] = filePath;
 						result.Position = fs.Position;
 
 						Log.Trace(string.Format("{0}: ({1}) from '{2}' at byte position {3}.", LogContext.LogType, result.Id, filePath, originalPosition));
-						Log.Trace(string.Format("{0}: ({1}) line '{2}' read.", LogContext.LogType, result.Id, line));
+						Log.Trace(string.Format("{0}: ({1}) line '{2}' read.", LogContext.LogType, result.Id, lineResult));
 
 						_unprocessed.Enqueue(result);
 
@@ -202,11 +205,6 @@ namespace LogFlow.Builtins.Inputs
 				_files.TryRemove(filePath, out tmp);
 			}
 		}
-
-        private bool EndOfFile(Stream fs)
-        {
-            return fs.Position >= fs.Length;
-        }
 
 		public override void LineIsProcessed(Result result)
 		{
