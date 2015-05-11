@@ -22,16 +22,16 @@ namespace LogFlow.Builtins.Inputs
 		private readonly string _path;
 		private readonly Encoding _encoding;
 		private readonly int _readBatchSize;
-		private int _checkIntervalMiliseconds = 30000;
+		private int _checkIntervalMilliseconds = 30000;
 
-		public int CheckIntervalMiliseconds
+		public int CheckIntervalMilliseconds
 		{
 			set
 			{
 				if(value < 100)
 					throw new InvalidDataException("Interval can't be less than 100 milliseconds.");
 				
-				_checkIntervalMiliseconds = value;
+				_checkIntervalMilliseconds = value;
 			}
 		}
 
@@ -44,7 +44,7 @@ namespace LogFlow.Builtins.Inputs
 			_path = path;
 			_encoding = encoding;
 			_readBatchSize = readBatchSize;
-			_checkIntervalMiliseconds = checkIntervalMilliseconds;
+			_checkIntervalMilliseconds = checkIntervalMilliseconds;
 
 			_watcher = new FileSystemWatcher(GetPath(), GetSearchPattern()) {IncludeSubdirectories = includeSubDirectories};
 			_watcher.Changed += (sender, args) => AddToQueueWithDuplicationCheck(args.FullPath);
@@ -138,7 +138,7 @@ namespace LogFlow.Builtins.Inputs
 				
 				if (_unprocessed.Count == 0)
 				{
-					Thread.Sleep(_checkIntervalMiliseconds);
+					Thread.Sleep(_checkIntervalMilliseconds);
 				}
 			}
 		}
