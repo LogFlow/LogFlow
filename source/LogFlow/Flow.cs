@@ -129,7 +129,7 @@ namespace LogFlow
 				result = processor.Process(result);
 			}
 
-			if (!result.Canceled)
+			if (!result.Canceled && _flowStructure.Output != null)
 			{
 				_flowStructure.Output.Process(result);
 			}
