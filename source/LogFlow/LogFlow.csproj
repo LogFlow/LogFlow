@@ -34,8 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elasticsearch.Net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
+    <Reference Include="BinaryRage, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\libs\BinaryRage\BinaryRage.dll</HintPath>
+    </Reference>
+    <Reference Include="Elasticsearch.Net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Elasticsearch.Net.1.5.0\lib\net45\Elasticsearch.Net.dll</HintPath>
     </Reference>
     <Reference Include="Nest, Version=1.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
@@ -61,14 +64,11 @@
     <Reference Include="Topshelf">
       <HintPath>..\..\packages\Topshelf.3.1.4\lib\net40-full\Topshelf.dll</HintPath>
     </Reference>
-    <Reference Include="BinaryRage">
-      <HintPath>..\..\libs\BinaryRage\BinaryRage.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builtins\Inputs\ConsoleInput.cs" />
     <Compile Include="Builtins\Inputs\FileInput.cs" />
-    <Compile Include="Components\Streams.cs" />
+    <Compile Include="Builtins\Inputs\TextFileLineReader.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchConfiguration.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchFields.cs" />
     <Compile Include="Builtins\Outputs\ElasticSearchOutput.cs" />
@@ -81,13 +81,7 @@
     <Compile Include="Builtins\Processors\IISLog\LogLine.cs" />
     <Compile Include="Builtins\Processors\IISLog\LogLineFields.cs" />
     <Compile Include="Builtins\Processors\SetEventTimeStampToNow.cs" />
-    <Compile Include="Components\SplitIntoLines.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="EncodingDetection\DetectedEncoding.cs" />
-    <Compile Include="EncodingDetection\DetectionResult.cs" />
-    <Compile Include="EncodingDetection\EncodingDetector.cs" />
-    <Compile Include="EncodingDetection\IEncodingDetector.cs" />
-    <Compile Include="EncodingDetection\NoEncodingDetector.cs" />
     <Compile Include="FlowBuilder.cs" />
     <Compile Include="JSonKeys.cs" />
     <Compile Include="LogContext.cs" />
